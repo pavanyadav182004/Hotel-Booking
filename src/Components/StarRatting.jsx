@@ -1,0 +1,12 @@
+import React from 'react'
+ import {assets} from '../assets/assets'
+  const StarRatting = ({rating=4}) => {
+     return (
+       <div className="flex gap-1" > 
+        {Array(5).fill(' ').map((_, index)=>( 
+          <img src={rating > index ? assets.starIconFilled : assets.starIconOutlined} 
+          alt='star-icon' className='w-4.5 h-4.5' /> 
+          ))} 
+          </div> 
+          ) } 
+          export default StarRatting; 
