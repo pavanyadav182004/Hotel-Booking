@@ -22,7 +22,7 @@ function App() {
   return (
     <>
       {!isOwnerPath && <Navbar />}
-      {true && <HotelReg />}
+      {!true && <HotelReg />}
       <div className="min-h-[70vh]">
         <Routes>
           <Route path="/" element={<Home />} />
