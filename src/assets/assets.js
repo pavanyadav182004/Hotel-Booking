@@ -20,7 +20,7 @@ import roomServiceIcon from './roomServiceIcon.svg'
 import mountainIcon from './mountainIcon.svg'
 import poolIcon from './poolIcon.svg'
 import homeIcon from './homeIcon.svg'
-import closeIcon from './closeIcon.svg'
+import closeIcon from './closeicon.svg'
 import locationFilledIcon from './locationFilledIcon.svg'
 import heartIcon from './heartIcon.svg'
 import badgeIcon from './badgeIcon.svg'
@@ -32,8 +32,8 @@ import roomImg1 from './roomImg1.png'
 import roomImg2 from './roomImg2.png'
 import roomImg3 from './roomImg3.png'
 import roomImg4 from './roomImg4.png'
-import regImage from './regImage.png'
-import exclusiveOfferCardImg1 from "./Summer.jpg";
+import regImage from './regimage.png'
+import exclusiveOfferCardImg1 from "./summer.jpg";
 import exclusiveOfferCardImg2 from "./exclusiveOfferCardImg2.png";
 import exclusiveOfferCardImg3 from "./exclusiveOfferCardImg3.png";
 import addIcon from "./addIcon.svg";
