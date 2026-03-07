@@ -10,7 +10,8 @@ const HotelCard = ({ room, index }) => {
             onClick={() => scrollTo(0, 0)} 
             key={room._id}
             className='group relative max-w-[300px] w-full rounded-2xl overflow-hidden bg-white 
-            shadow-md hover:shadow-2xl transition-all  duration-500  transform hover:-translate-y-2'
+            shadow-md hover:shadow-2xl transition-all  duration-500 f
+            ; transform hover:-translate-y-2'
         >
 
             {/* Image Section */}
