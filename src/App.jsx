@@ -1,6 +1,7 @@
 import Navbar from './Components/Navbar'
 import './App.css'
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
+import { useState } from 'react'
 
 import Home from './Pages/Home'
 import Footer from './Components/Footer'
@@ -24,9 +25,15 @@ function App() {
   const user = JSON.parse(localStorage.getItem("user"))
   const isAdmin = user?.role === "admin"
 
+  // popup show state
+  const [showHotelReg, setShowHotelReg] = useState(true)
+
   return (
     <>
       {!isOwnerPath && <Navbar />}
+
+      {/* Hotel Register Popup */}
+      {showHotelReg && <HotelReg setShow={setShowHotelReg} />}
 
       <div className="min-h-[70vh]">
 
@@ -43,11 +50,9 @@ function App() {
             path="/owner"
             element={isAdmin ? <Layout /> : <Navigate to="/" />}
           >
-
             <Route index element={<Dashboard />} />
             <Route path="add-room" element={<Addroom />} />
             <Route path="list-room" element={<ListRoom />} />
-
           </Route>
 
         </Routes>
