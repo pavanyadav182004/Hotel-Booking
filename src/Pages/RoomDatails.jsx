@@ -1,179 +1,464 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import assets, { facilityIcons, roomCommonData, roomsDummyData } from '../assets/assets'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import assets, { facilityIcons, roomCommonData } from '../assets/assets'
 import StarRatting from '../Components/StarRatting'
-import Pavan from '../assets/pavan.jpg'
+import { apiRequest, toRoomCard, fetchAvailableRooms, createBooking, confirmPayment, createRazorpayOrder } from '../api'
+import PaymentModal from '../Components/PaymentModal'
+
+// ─── Step indicator ───────────────────────────────────────────────────────
+const Step = ({ num, label, active, done }) => (
+  <div className={`flex items-center gap-2 text-sm font-medium
+    ${done ? 'text-green-600' : active ? 'text-blue-600' : 'text-gray-400'}`}>
+    <span className={`w-7 h-7 rounded-full flex items-center justify-center border-2 text-xs
+      ${done ? 'bg-green-600 border-green-600 text-white'
+             : active ? 'bg-blue-600 border-blue-600 text-white'
+             : 'border-gray-300'}`}>
+      {done ? '✓' : num}
+    </span>
+    {label}
+  </div>
+)
 
 const RoomDetails = () => {
-  const { id } = useParams()
+  const { id } = useParams()          // hotel id
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
-  const [room, setRoom] = useState(null)
+  // ── hotel data ─────────────────────────────────────────────────
+  const [hotel, setHotel] = useState(null)
   const [mainImage, setMainImage] = useState(null)
+  const [pageError, setPageError] = useState('')
 
+  // ── booking state ──────────────────────────────────────────────
+  const [checkIn,  setCheckIn]  = useState(searchParams.get('checkIn') || '')
+  const [checkOut, setCheckOut] = useState(searchParams.get('checkOut') || '')
+  const [guests,   setGuests]   = useState(searchParams.get('guests') || 1)
+
+  // ── availability ───────────────────────────────────────────────
+  const [availableRooms, setAvailableRooms] = useState([])
+  const [selectedRoom,   setSelectedRoom]   = useState(null)
+  const [availChecked,   setAvailChecked]   = useState(false)
+  const [availLoading,   setAvailLoading]   = useState(false)
+
+  // ── booking / payment ──────────────────────────────────────────
+  const [step,           setStep]           = useState(1)   // 1=dates, 2=rooms, 3=payment
+  const [bookingLoading, setBookingLoading] = useState(false)
+  const [bookingId,      setBookingId]      = useState(null)
+  const [payLoading,     setPayLoading]     = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+
+  // ── load hotel ─────────────────────────────────────────────────
   useEffect(() => {
-    const foundRoom = roomsDummyData.find(
-      room => room._id.toString() === id.trim()
-    )
-
-    if (foundRoom) {
-      setRoom(foundRoom)
-      setMainImage(foundRoom.images[0])
+    if (!/^\d+$/.test(String(id).trim())) {
+      setPageError('Invalid hotel link. Please open from the Hotels page.')
+      return
     }
+    apiRequest(`/hotels/${id}`)
+      .then(res => {
+        const h = toRoomCard(res.data)
+        setHotel(h)
+        setMainImage(h.images[0])
+      })
+      .catch(err => setPageError(err.message || 'Hotel not found'))
   }, [id])
 
-  if (!room) {
-    return <p className="text-center mt-20">Room not found</p>
+  // ── today string for min date attr ─────────────────────────────
+  const todayStr = new Date().toISOString().split('T')[0]
+
+  // ── date validation helper ─────────────────────────────────────
+  const validateDates = () => {
+    if (!checkIn || !checkOut) {
+      toast.error('Please select both check-in and check-out dates.')
+      return false
+    }
+    const ci = new Date(checkIn)
+    const co = new Date(checkOut)
+    if (ci < new Date(todayStr)) {
+      toast.error('Check-in date cannot be in the past.')
+      return false
+    }
+    if (co <= ci) {
+      toast.error('Check-out must be after check-in.')
+      return false
+    }
+    return true
   }
 
+  // ── check available rooms ──────────────────────────────────────
+  const handleCheckAvailability = async () => {
+    if (!validateDates()) return
+    setAvailLoading(true)
+    setAvailChecked(false)
+    setSelectedRoom(null)
+    try {
+      const res = await fetchAvailableRooms(id, checkIn, checkOut)
+      setAvailableRooms(res.data || [])
+      setAvailChecked(true)
+      setStep(2)
+      if (!res.data?.length) {
+        toast.info('No rooms available for the selected dates. Try different dates.')
+      } else {
+        toast.success(`${res.data.length} room(s) available!`)
+      }
+    } catch (err) {
+      toast.error(err.message || 'Could not check availability.')
+    } finally {
+      setAvailLoading(false)
+    }
+  }
+
+  // ── create booking ─────────────────────────────────────────────
+  const handleBook = async () => {
+    if (!localStorage.getItem('token')) {
+      toast.error('Please login first to book a room.')
+      navigate('/login')
+      return
+    }
+    if (!selectedRoom) {
+      toast.error('Please select a room first.')
+      return
+    }
+    if (!validateDates()) return
+
+    setBookingLoading(true)
+    try {
+      const res = await createBooking({
+        hotelId:  Number(id),
+        roomId:   selectedRoom.id,
+        checkIn,
+        checkOut,
+        guests:   Number(guests),
+      })
+      const bid = res.data?.id
+      setBookingId(bid)
+      setStep(3)
+      toast.success(`Booking created! ID: ${bid} — Total: ₹${res.data?.totalPrice}`)
+    } catch (err) {
+      if (err.message?.toLowerCase().includes('session') ||
+          err.message?.toLowerCase().includes('login')) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        navigate('/login')
+      }
+      toast.error(err.message || 'Booking failed. Please try again.')
+    } finally {
+      setBookingLoading(false)
+    }
+  }
+
+  // ── confirm payment ────────────────────────────────────────────
+  const handlePay = async () => {
+    if (!bookingId) return
+    setShowPaymentModal(true)
+  }
+
+  const finalizeBooking = async (razorpayOrderId) => {
+    setPayLoading(true)
+    try {
+      await confirmPayment(bookingId, razorpayOrderId)
+      toast.success('Payment successful! Booking confirmed. ✅')
+      setTimeout(() => navigate('/my-bookings'), 2000)
+    } catch (err) {
+      toast.error(err.message || 'Payment confirmation failed.')
+    } finally {
+      setPayLoading(false)
+      setShowPaymentModal(false)
+    }
+  }
+
+  const calculateTotal = () => {
+    if (!selectedRoom || nights <= 0) return 0
+    return selectedRoom.price * nights
+  }
+
+  // ── early returns ──────────────────────────────────────────────
+  if (pageError) return (
+    <p className="text-center mt-32 text-red-500 text-lg">{pageError}</p>
+  )
+  if (!hotel) return (
+    <p className="text-center mt-32 text-gray-500 animate-pulse">Loading hotel...</p>
+  )
+
+  const nights = checkIn && checkOut
+    ? Math.max(0, Math.round((new Date(checkOut) - new Date(checkIn)) / 86_400_000))
+    : 0
   return (
-    <div className='py-28 md:py-30 px-4 md:px-16 lg:px-24 xl:px-32'>
-      <div className='flex flex-col md:flex-row items-start md:items-center gap-2'>
+    <div className="py-28 md:py-30 px-4 md:px-16 lg:px-24 xl:px-32">
+      <ToastContainer position="top-right" autoClose={4000} />
+
+      {/* ── Hotel header ── */}
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
         <h1 className="text-3xl md:text-4xl font-playfair">
-          {room.hotel.name}
-          <span className='font-inner text-sm'>({room.roomType})</span>
+          {hotel.hotel.name}
+          <span className="font-inter text-sm ml-2 text-gray-500">({hotel.roomType})</span>
         </h1>
-        <p className="text-xs font-inter py-1.5 px-3 text-white bg-orange-500 rounded-full">20% OFF</p>
+        <span className={`text-xs py-1.5 px-3 rounded-full font-medium
+          ${hotel.isAvailable ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+          {hotel.isAvailable ? '✔ Available' : '✖ Not Available'}
+        </span>
       </div>
 
-      {/* Room rating */}
-      <div className='flex items-center gap-1 mt-2'>
-        <StarRatting />
-        <p className='ml-2'>200+ reviews</p>
+      {/* ── Rating ── */}
+      <div className="flex items-center gap-1 mt-2">
+        <StarRatting rating={hotel.rating} />
+        <p className="ml-2 text-sm text-gray-500">200+ reviews</p>
       </div>
 
-      {/* Room Address */}
-      <div className='flex items-center gap-1 text-gray-500 mt-2'>
-        <img src={assets.locationFilledIcon} alt="locaion-icon" />
-        <span>{room.hotel.address}</span>
+      {/* ── Address ── */}
+      <div className="flex items-center gap-1 text-gray-500 mt-2">
+        <img src={assets.locationFilledIcon} alt="location" className="w-4" />
+        <span>{hotel.hotel.address}</span>
       </div>
 
-
-      <div className='flex flex-col lg:flex-row mt-6 gap-6'>
-        {/* Room images */}
-
-        <div className='lg:w-1/2 w-full'>
-          <img className='w-full rounded-xl shadow-lg object-cover'
-            src={mainImage} alt="room- image" />
-
+      {/* ── Image gallery ── */}
+      <div className="flex flex-col lg:flex-row mt-6 gap-6">
+        <div className="lg:w-1/2 w-full">
+          <img className="w-full rounded-xl shadow-lg object-cover max-h-96"
+            src={mainImage} alt="hotel" />
         </div>
-
-        <div className='grid grid-cols-2 gap-4 lg:w-1/2 w-full'>
-          {/* img */}
-          {room?.images.length > 1 && room.images.map((image, index) => (
-            <img className={`w-full rounded-xl shadow-md object-cover cursor-pointer ${mainImage == image && 'outline-3 outline-orange-500'}`}
-              onClick={() => setMainImage(image)}
-              key={index} src={image} alt='Room Image' />
+        <div className="grid grid-cols-2 gap-4 lg:w-1/2 w-full">
+          {hotel.images.map((img, i) => (
+            <img key={i}
+              className={`w-full rounded-xl shadow-md object-cover cursor-pointer max-h-44
+                ${mainImage === img ? 'outline outline-2 outline-orange-500' : ''}`}
+              onClick={() => setMainImage(img)}
+              src={img} alt="hotel view" />
           ))}
         </div>
       </div>
 
-
-      {/* Room highlight */}
-      <div className='flex flex-col md:flex-row md:justify-between mt-10'>
-        <div className='flex flex-col'>
-          <h1 className='text-3xl md:text-4xl font-playfair'>Exprience Luxury Like Never Before</h1>
-
-          <div className='flex flex-wrap items-center mt-3 mb-6 gap-4'>
-            {room.amenities.map((item, index) => (
-              <div key={index} className='flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100'>
-                <img className='w-5 h-5'
-                  src={facilityIcons[item]} alt={item} />
-                <p className='text-xs'>{item}</p>
+      {/* ── Amenities + price ── */}
+      <div className="flex flex-col md:flex-row md:justify-between mt-10">
+        <div className="flex flex-col">
+          <h2 className="text-3xl md:text-4xl font-playfair">{hotel.heading || 'Experience Luxury Like Never Before'}</h2>
+          {hotel.description && (
+            <p className="text-gray-600 mt-3 leading-relaxed text-base max-w-3xl">{hotel.description}</p>
+          )}
+          <div className="flex flex-wrap items-center mt-3 mb-6 gap-4">
+            {hotel.amenities.map((item, i) => (
+              <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100">
+                <img className="w-5 h-5" src={facilityIcons[item]} alt={item} />
+                <p className="text-xs">{item}</p>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Room Price  */}
-        <p className='text-2xl font-medium'>Rs.{room.pricePerNight}/night</p>
+        <p className="text-2xl font-medium self-start md:self-center">
+          ₹{hotel.pricePerNight}<span className="text-base text-gray-500">/night</span>
+        </p>
       </div>
 
-      {/* Check in check out */}
-      <form className='flex flex-col md:flex-row items-start md:items-center 
-                      justify-between bg-white shadow-[0px_0px_20px_rgba(0,0,0,0.15)] 
-                      p-6 rounded-xl mx-auto mt-16 max-w-6xl '>
+      {/* ════════════════════════════════════════════════════════
+          BOOKING WORKFLOW — 3 steps
+          ════════════════════════════════════════════════════════ */}
+      <div className="mt-16 bg-white shadow-[0px_0px_24px_rgba(0,0,0,0.1)] p-6 rounded-2xl max-w-4xl mx-auto">
 
-        <div className='flex flex-col flex-wrap md:flex-row 
-                        items-start md:items-center gap-4 md:gap-10 text-gray-500'>
-
-          <div className='flex flex-col'>
-            <label htmlFor="checkInDate" className='font-medium'>Check In</label>
-            <input className='w-full rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none'
-              type="date" name="" id="checkInDate" placeholder='check-In' required />
+        {/* 🔥 Hotel Not Available — Block Booking */}
+        {!hotel.isAvailable ? (
+          <div className="text-center py-10">
+            <div className="text-5xl mb-4">🚫</div>
+            <h3 className="text-2xl font-semibold text-red-600">Hotel Not Available</h3>
+            <p className="text-gray-500 mt-3 max-w-md mx-auto">
+              This hotel is currently not available for booking. 
+              Please check back later or explore other hotels.
+            </p>
+            <button 
+              onClick={() => navigate('/rooms')}
+              className="mt-6 bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all
+                text-white rounded-xl px-8 py-3 font-semibold text-base">
+              🔍 Browse Other Hotels
+            </button>
           </div>
-
-          {/* vartical line */}
-          <div className='w-px h-15 bg-gray-300/70 max-md:hidden'></div>
-
-          <div className='flex flex-col'>
-            <label htmlFor="checkOutDate" className='font-medium'>Check Out</label>
-            <input className='w-full rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none'
-              type="date" name="" id="checkOutDate" placeholder='check-Out' required />
-          </div>
-
-          {/* vartical line */}
-          <div className='w-px h-15 bg-gray-300/70 max-md:hidden'></div>
-
-          <div className='flex flex-col'>
-            <label htmlFor="checkOutDate" className='font-medium'>Guests</label>
-            <input className='max-w-20 rounded border border-gray-300 px-3 py-2 mt-1.5 outline-none'
-              type="number" name="" id="guests" placeholder='0' required />
-          </div>
-
+        ) : (
+          <>
+        {/* Step bar */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 mb-8">
+          <Step num={1} label="Select Dates"   active={step === 1} done={step > 1} />
+          <div className="hidden sm:block flex-1 h-px bg-gray-200" />
+          <Step num={2} label="Choose Room"    active={step === 2} done={step > 2} />
+          <div className="hidden sm:block flex-1 h-px bg-gray-200" />
+          <Step num={3} label="Confirm & Pay"  active={step === 3} done={false} />
         </div>
 
-        <button type='submit'
-          className='bg-primary hover:bg-blue-700 active:scale-95 transition-all 
-        text-white rounded-md max-md:w-full max-md:mt-6 md:px-25 md:py-4 text-base cursor-pointer '>
-          Check Availability
-        </button>
-      </form>
-
-
-      {/* common specifications */}
-      <div className='mt-25 space-y-4'>
-        {roomCommonData.map((spec, index) => (
-
-          <div key={index} className='flex items-start gap-2'>
-            <img src={spec.icon} alt={`${spec.title}-icon`} className='w-6.5' />
-            <div>
-              <p className='text-base'>{spec.title}</p>
-              <p className='text-gray-500'>{spec.description}</p>
+        {/* ── STEP 1: Date + guests ── */}
+        {step === 1 && (
+          <div className="flex flex-col md:flex-row items-end gap-4 flex-wrap">
+            <div className="flex flex-col flex-1 min-w-[140px]">
+              <label className="text-sm font-medium text-gray-700 mb-1">Check-In</label>
+              <input type="date" min={todayStr} value={checkIn}
+                onChange={e => { setCheckIn(e.target.value); setAvailChecked(false) }}
+                className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400" />
             </div>
+            <div className="flex flex-col flex-1 min-w-[140px]">
+              <label className="text-sm font-medium text-gray-700 mb-1">Check-Out</label>
+              <input type="date" min={checkIn || todayStr} value={checkOut}
+                onChange={e => { setCheckOut(e.target.value); setAvailChecked(false) }}
+                className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <div className="flex flex-col min-w-[100px]">
+              <label className="text-sm font-medium text-gray-700 mb-1">Guests</label>
+              <input type="number" min="1" max="10" value={guests}
+                onChange={e => setGuests(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 w-24 outline-none focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <button onClick={handleCheckAvailability} disabled={availLoading}
+              className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all
+                text-white rounded-lg px-6 py-2.5 font-medium disabled:opacity-60 whitespace-nowrap w-full md:w-auto mt-2 md:mt-0">
+              {availLoading ? 'Checking...' : '🔍 Check Availability'}
+            </button>
+          </div>
+        )}
 
+        {/* Date summary (steps 2 & 3) */}
+        {step > 1 && (
+          <div className="flex flex-wrap gap-6 mb-4 text-sm text-gray-600 bg-blue-50 rounded-xl p-3">
+            <span>📅 <strong>Check-In:</strong> {checkIn}</span>
+            <span>📅 <strong>Check-Out:</strong> {checkOut}</span>
+            <span>👥 <strong>Guests:</strong> {guests}</span>
+            {nights > 0 && <span>🌙 <strong>Nights:</strong> {nights}</span>}
+            <button onClick={() => { setStep(1); setAvailChecked(false); setSelectedRoom(null); setBookingId(null) }}
+              className="text-blue-600 hover:underline ml-auto text-xs">Change dates</button>
+          </div>
+        )}
+
+        {/* ── STEP 2: Room selection ── */}
+        {step === 2 && availChecked && (
+          <div>
+            {availableRooms.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-red-500 font-medium">No rooms available for these dates.</p>
+                <p className="text-gray-400 text-sm mt-1">Please try different dates.</p>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-gray-500 mb-4">
+                  {availableRooms.length} room(s) available — select one to book:
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4 max-h-80 overflow-y-auto pr-1">
+                  {availableRooms.map(room => {
+                    const isSelected = selectedRoom?.id === room.id
+                    return (
+                      <div key={room.id} onClick={() => setSelectedRoom(room)}
+                        className={`border-2 rounded-xl p-4 cursor-pointer transition-all
+                          ${isSelected
+                            ? 'border-blue-600 bg-blue-50 shadow-md'
+                            : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'}`}>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold text-gray-800">
+                              {room.type || 'Standard Room'}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              Max guests: {room.personCount || '—'}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-blue-700">₹{room.price}</p>
+                            <p className="text-xs text-gray-400">/night</p>
+                          </div>
+                        </div>
+                        {nights > 0 && (
+                          <p className="text-xs text-gray-500 mt-2">
+                            Total for {nights} night(s): <strong>₹{room.price * nights}</strong>
+                          </p>
+                        )}
+                        {isSelected && (
+                          <p className="mt-2 text-xs text-blue-600 font-medium">✔ Selected</p>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-end mt-6 gap-4">
+                  <button
+                    onClick={() => { setStep(1); setAvailChecked(false); setSelectedRoom(null); setBookingId(null); }}
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-xl px-8 py-3 font-semibold text-base transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button onClick={handleBook}
+                    disabled={!selectedRoom || bookingLoading}
+                    className="bg-orange-500 hover:bg-orange-600 active:scale-95 transition-all
+                      text-white rounded-xl px-8 py-3 font-semibold text-base
+                      disabled:opacity-50 disabled:cursor-not-allowed">
+                    {bookingLoading ? 'Creating Booking...' : '📋 Book Now'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── STEP 3: Payment confirmation ── */}
+        {step === 3 && bookingId && (
+          <div className="text-center py-6">
+            <div className="text-5xl mb-4">🎉</div>
+            <h3 className="text-xl font-semibold text-gray-800">Booking Created!</h3>
+            <p className="text-gray-500 mt-1 mb-2">Booking ID: <strong>#{bookingId}</strong></p>
+            {selectedRoom && nights > 0 && (
+              <p className="text-gray-600 mb-4">
+                Total amount: <strong>₹{selectedRoom.price * nights}</strong>
+                <span className="text-sm text-gray-400 ml-1">({nights} night(s))</span>
+              </p>
+            )}
+            <p className="text-sm text-gray-400 mb-6">
+              Your booking is <span className="text-yellow-600 font-medium">PENDING</span>.
+              Complete payment to confirm your stay.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <button
+                onClick={() => { setStep(2); setShowPaymentModal(false); setBookingId(null); }}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-xl px-8 py-3 font-semibold text-base transition-all"
+              >
+                Cancel
+              </button>
+              <button onClick={handlePay} disabled={payLoading}
+                className="bg-green-600 hover:bg-green-700 active:scale-95 transition-all
+                  text-white rounded-xl px-10 py-3 font-semibold text-base
+                  disabled:opacity-60">
+                {payLoading ? 'Processing...' : '💳 Pay Now & Confirm'}
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-3">
+              You will be redirected to My Bookings after payment.
+            </p>
+          </div>
+        )}
+          </>
+        )}
+      </div>
+
+      {/* ── Common specs ── */}
+      <div className="mt-20 space-y-4">
+        {roomCommonData.map((spec, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <img src={spec.icon} alt={spec.title} className="w-6" />
+            <div>
+              <p className="text-base font-medium">{spec.title}</p>
+              <p className="text-gray-500 text-sm">{spec.description}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* description */}
-      <div>
-        <p className='max-w-3xl border-y border-gray-300 my-15 py-10 text-gray-500'>
-          Guests will be allocated on the ground floor according to availability.
-          You get a comfortable Two bedroom apartment has a true city feeling.
-          The price quoted is for two guest, at the guest slot please mark the number of guests to get the exact price for groups.
-        </p>
-      </div>
+      {/* ── Description ── */}
+      <p className="max-w-3xl border-y border-gray-300 my-15 py-10 text-gray-500">
+        Guests will be allocated on the ground floor according to availability.
+        You get a comfortable apartment with a true city feeling.
+        The price quoted is per room per night. Adjust the guests field for group pricing.
+      </p>
 
-      {/* owner datails Hosted by */}
-      <div className='flex flex-col items-start gap-4'>
-        <div className='flex gap-4'>
-          <img src={Pavan} alt="Host" className='h-14 w-14 md:h-14 rounded-full' />
-
-          <div >
-            <p className='text-lg md:text-xl'>Hosted By {room.hotel.name}</p>
-            <div className='flex items-center mt-1'>
-              <StarRatting/>
-              <p className='ml-2'>200+ reviews</p>
-            </div>
-          </div>
-        </div>
-
-        <button className='px-6 py-2.5 mt-4 rounded text-white bg-primary hover:bg-primary-dull transition-all cursor-pointer'>
-         Contact Now
-        </button>
-
-      </div>
-
+      <PaymentModal 
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onPaymentSuccess={finalizeBooking}
+        amount={calculateTotal()}
+        hotelName={hotel?.hotel?.name || "Hotel"}
+        bookingId={bookingId}
+      />
     </div>
   )
 }

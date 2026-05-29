@@ -6,31 +6,31 @@ const HotelCard = ({ room, index }) => {
     return (
 
         <Link 
-            to={'/rooms/' + room._id} 
+            to={'/rooms/' + room.hotelId} 
             onClick={() => scrollTo(0, 0)} 
-            key={room._id}
-            className='group relative max-w-[300px] w-full rounded-2xl overflow-hidden bg-white 
-            shadow-md hover:shadow-2xl transition-all  duration-500 f
-            ; transform hover:-translate-y-2'
+            key={room.hotelId}
+            className='group relative max-w-full sm:max-w-[340px] w-full mx-auto rounded-2xl overflow-hidden bg-white 
+            shadow-md hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2'
         >
 
             {/* Image Section */}
-            <div className="overflow-hidden">
+            <div className="overflow-hidden object-contain">
                 <img 
                     src={room.images[0]} 
                     alt="hotel"
                     // hover-scale-110 zoom-in ke liyee
-                    className='w-full h-52 object-cover group-hover:scale-110 transition duration-500'
+                    className='w-full h-52  object-cover group-hover:scale-110 transition duration-500'
                 />
             </div>
 
             {/* Best Seller Badge */}
-            {index % 2 === 0 && (
+            {/* {index % 2 === 0 && (
                 <p className='absolute top-3 left-3 px-3 py-1 text-xs bg-white 
                 text-red-500 font-semibold rounded-full shadow'>
                     Best Seller
                 </p>
-            )}
+                
+            )} */}
 
             {/* Content Section */}
             <div className='p-4'>
@@ -46,7 +46,7 @@ const HotelCard = ({ room, index }) => {
                             alt="star" 
                             className='w-4'
                         />
-                        4.5
+                        {room.rating || 4.5}
                     </div>
                 </div>
 
