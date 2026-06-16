@@ -42,7 +42,9 @@ import listIcon from "./listIcon.svg";
 import uploadArea from "./uploadArea.svg";
 import totalBookingIcon from "./totalBookingIcon.svg";
 import totalRevenueIcon from "./totalRevenueIcon.svg";
-
+import parkingIcon from "./parkingIcon.svg";
+import airConditioningIcon from "./airConditioningIcon.svg";
+import gymIcon from "./gymIcon.svg";
 
 export const assets = {
     pavan,
@@ -80,11 +82,14 @@ export const assets = {
     uploadArea,
     totalBookingIcon,
     totalRevenueIcon,
+    parkingIcon,
+    airConditioningIcon,
+    gymIcon,
 }
 
 export const cities = [
 "Mumbai","Delhi","Bangalore","Hyderabad","Chennai","Kolkata","Pune",
-"Ahmedabad","Surat","Jaipur","Lucknow","Kanpur","Varanasi","Prayagraj",
+"Ahmedabad","Azamgarh","Surat","Jaipur","Jaunpur","Lucknow","Kanpur","Varanasi","Prayagraj",
 "Agra","Ghaziabad","Noida","Meerut","Aligarh","Bareilly","Moradabad",
 "Jhansi","Firozabad","Shahjahanpur","Etawah","Bulandshahr","Hapur",
 "Sambhal","Amroha","Muzaffarnagar","Sitapur","Hardoi","Farrukhabad",
@@ -118,6 +123,12 @@ export const facilityIcons = {
     "Room Service": assets.roomServiceIcon,
     "Mountain View": assets.mountainIcon,
     "Pool Access": assets.poolIcon,
+    "Swimming Pool": assets.poolIcon,
+    "Parking": assets.parkingIcon,
+    "Covered Parking": assets.parkingIcon,
+    "Air Conditioning": assets.airConditioningIcon,
+    "Air Conditioner": assets.airConditioningIcon,
+    "Gym": assets.gymIcon,
 };
 
 // For Room Details Page
@@ -163,7 +174,7 @@ export const roomsDummyData = [
         "hotel": hotelDummyData,
         "roomType": "Double Bed",
         "pricePerNight": 499,
-        "amenities": ["Room Service", "Mountain View", "Pool Access"],
+        "amenities": ["Room Service", "Mountain View", "Pool Access", "Parking", "Air Conditioning"],
         "images": [roomImg1, roomImg2, roomImg3, roomImg4],
         "isAvailable": true,
         "createdAt": "2025-04-10T06:26:04.013Z",
@@ -175,7 +186,7 @@ export const roomsDummyData = [
         "hotel": hotelDummyData,
         "roomType": "Double Bed",
         "pricePerNight": 899,
-        "amenities": ["Room Service", "Mountain View", "Pool Access"],
+        "amenities": ["Room Service", "Mountain View", "Pool Access", "Gym", "Air Conditioning"],
         "images": [roomImg2, roomImg3, roomImg4, roomImg1],
         "isAvailable": true,
         "createdAt": "2025-04-10T06:25:22.593Z",
