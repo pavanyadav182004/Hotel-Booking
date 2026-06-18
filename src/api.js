@@ -1,8 +1,8 @@
 // ─── Base URL ─────────────────────────────────────────────────────────────
 // Reads from .env (VITE_API_URL) or falls back to the running Spring Boot port
-// const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8082/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8082/api'
 
-const API_BASE_URL = 'https://hotel-booking-backend-java.onrender.com/api'
+
 
 // ─── Core request helper ───────────────────────────────────────────────────
 export async function apiRequest(path, options = {}) {
