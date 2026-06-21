@@ -600,6 +600,97 @@ const Dashboard = () => {
           </tbody>
         </table>
       </div>
+
+      <h2 className='text-xl text-blue-950/80 font-medium mt-10 mb-4'>Hotel Policies & Weekly Schedule</h2>
+      <div className='w-full max-w-6xl border border-gray-300 rounded-lg overflow-x-auto mb-10'>
+        <table className='w-full text-sm'>
+          <thead className='bg-gray-50 text-gray-700'>
+            <tr>
+              <th className='py-3 px-4 text-left'>Day / Policy</th>
+              <th className='py-3 px-4 text-left'>Room Cleaning Service</th>
+              <th className='py-3 px-4 text-left'>Breakfast Timings</th>
+              <th className='py-3 px-4 text-left'>Special Events/Dinners</th>
+              <th className='py-3 px-4 text-center'>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className='border-t'>
+              <td className='py-3 px-4 font-medium'>Monday</td>
+              <td className='py-3 px-4'>9:00 AM - 1:00 PM</td>
+              <td className='py-3 px-4'>7:30 AM - 10:00 AM</td>
+              <td className='py-3 px-4'>Welcome Drink Session</td>
+              <td className='py-3 px-4 text-center'>
+                <button className='text-blue-600 mr-2 hover:underline'>Edit</button>
+                <button className='text-red-500 hover:underline'>Delete</button>
+              </td>
+            </tr>
+            <tr className='border-t'>
+              <td className='py-3 px-4 font-medium'>Tuesday</td>
+              <td className='py-3 px-4'>9:00 AM - 1:00 PM</td>
+              <td className='py-3 px-4'>7:30 AM - 10:00 AM</td>
+              <td className='py-3 px-4'>-</td>
+              <td className='py-3 px-4 text-center'>
+                <button className='text-blue-600 mr-2 hover:underline'>Edit</button>
+                <button className='text-red-500 hover:underline'>Delete</button>
+              </td>
+            </tr>
+            <tr className='border-t'>
+              <td className='py-3 px-4 font-medium'>Wednesday</td>
+              <td className='py-3 px-4'>9:00 AM - 1:00 PM</td>
+              <td className='py-3 px-4'>7:30 AM - 10:00 AM</td>
+              <td className='py-3 px-4'>Live Music Night</td>
+              <td className='py-3 px-4 text-center'>
+                <button className='text-blue-600 mr-2 hover:underline'>Edit</button>
+                <button className='text-red-500 hover:underline'>Delete</button>
+              </td>
+            </tr>
+            <tr className='border-t'>
+              <td className='py-3 px-4 font-medium'>Thursday</td>
+              <td className='py-3 px-4'>9:00 AM - 1:00 PM</td>
+              <td className='py-3 px-4'>7:30 AM - 10:00 AM</td>
+              <td className='py-3 px-4'>-</td>
+              <td className='py-3 px-4 text-center'>
+                <button className='text-blue-600 mr-2 hover:underline'>Edit</button>
+                <button className='text-red-500 hover:underline'>Delete</button>
+              </td>
+            </tr>
+            <tr className='border-t'>
+              <td className='py-3 px-4 font-medium'>Friday</td>
+              <td className='py-3 px-4'>9:00 AM - 1:00 PM</td>
+              <td className='py-3 px-4'>7:30 AM - 10:30 AM</td>
+              <td className='py-3 px-4'>Seafood Buffet</td>
+              <td className='py-3 px-4 text-center'>
+                <button className='text-blue-600 mr-2 hover:underline'>Edit</button>
+                <button className='text-red-500 hover:underline'>Delete</button>
+              </td>
+            </tr>
+            <tr className='border-t'>
+              <td className='py-3 px-4 font-medium'>Saturday</td>
+              <td className='py-3 px-4'>10:00 AM - 2:00 PM</td>
+              <td className='py-3 px-4'>8:00 AM - 11:00 AM</td>
+              <td className='py-3 px-4'>Gala Dinner & DJ</td>
+              <td className='py-3 px-4 text-center'>
+                <button className='text-blue-600 mr-2 hover:underline'>Edit</button>
+                <button className='text-red-500 hover:underline'>Delete</button>
+              </td>
+            </tr>
+            <tr className='border-t'>
+              <td className='py-3 px-4 font-medium'>Sunday</td>
+              <td className='py-3 px-4'>10:00 AM - 2:00 PM</td>
+              <td className='py-3 px-4'>8:00 AM - 11:00 AM</td>
+              <td className='py-3 px-4'>Sunday Brunch</td>
+              <td className='py-3 px-4 text-center'>
+                <button className='text-blue-600 mr-2 hover:underline'>Edit</button>
+                <button className='text-red-500 hover:underline'>Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div className='p-4 border-t'>
+           <button className='bg-primary text-white px-4 py-2 rounded text-sm'>+ Add Policy/Schedule Row</button>
+           <p className='text-xs text-gray-500 mt-2'>* Back-end integration to be added by your team.</p>
+        </div>
+      </div>
     </div>
   )
 }

@@ -284,28 +284,28 @@ const RoomDetails = () => {
 
         {/* ── STEP 1: Date + guests ── */}
         {step === 1 && (
-          <div className="flex flex-row items-end gap-2 sm:gap-4 w-full">
-            <div className="flex flex-col flex-[2] min-w-0">
-              <label className="text-sm font-medium text-gray-700 mb-1 whitespace-nowrap">Check-In</label>
+          <div className="flex flex-col md:flex-row items-end gap-4 flex-wrap">
+            <div className="flex flex-col flex-1 min-w-[140px]">
+              <label className="text-sm font-medium text-gray-700 mb-1">Check-In</label>
               <input type="date" min={todayStr} value={checkIn}
                 onChange={e => { setCheckIn(e.target.value); setAvailChecked(false) }}
-                className="border border-gray-300 rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full text-sm" />
+                className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400" />
             </div>
-            <div className="flex flex-col flex-[2] min-w-0">
-              <label className="text-sm font-medium text-gray-700 mb-1 whitespace-nowrap">Check-Out</label>
+            <div className="flex flex-col flex-1 min-w-[140px]">
+              <label className="text-sm font-medium text-gray-700 mb-1">Check-Out</label>
               <input type="date" min={checkIn || todayStr} value={checkOut}
                 onChange={e => { setCheckOut(e.target.value); setAvailChecked(false) }}
-                className="border border-gray-300 rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full text-sm" />
+                className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400" />
             </div>
-            <div className="flex flex-col flex-[1] min-w-0">
+            <div className="flex flex-col min-w-[100px]">
               <label className="text-sm font-medium text-gray-700 mb-1">Guests</label>
               <input type="number" min="1" max="10" value={guests}
                 onChange={e => setGuests(e.target.value)}
-                className="border border-gray-300 rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full text-sm" />
+                className="border border-gray-300 rounded-lg px-3 py-2 w-24 outline-none focus:ring-2 focus:ring-blue-400" />
             </div>
             <button onClick={handleCheckAvailability} disabled={availLoading}
-              className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all flex-[2] min-w-0
-                text-white rounded-lg px-2 sm:px-4 py-[9px] font-medium disabled:opacity-60 whitespace-nowrap text-sm sm:text-base">
+              className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all
+                text-white rounded-lg px-6 py-2.5 font-medium disabled:opacity-60 whitespace-nowrap w-full md:w-auto mt-2 md:mt-0">
               {availLoading ? 'Checking...' : '🔍 Check Availability'}
             </button>
           </div>
@@ -444,126 +444,12 @@ const RoomDetails = () => {
         ))}
       </div>
 
-      {/* ── Detailed Description & Policies ── */}
-      <div className="max-w-5xl border-y border-gray-300 my-15 py-10 text-gray-700">
-        <h2 className="text-3xl font-bold mb-6 text-gray-900">Hotel Policies & Important Information</h2>
-        
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">1. Check-in and Check-out Times</h3>
-            <p className="leading-relaxed">
-              <strong>Check-in:</strong> Starts from <em>2:00 PM</em> onwards.<br/>
-              <strong>Check-out:</strong> Until <em>11:00 AM</em>.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">2. Cancellation Policy</h3>
-            <p className="leading-relaxed">
-              <strong>Free Cancellation:</strong> Available up to <em>48 hours</em> before check-in.<br/>
-              <strong>Late Cancellation:</strong> Incurs a fee equal to the first night's stay.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">3. Pet Policy & Extra Beds</h3>
-            <p className="leading-relaxed">
-              <strong>Pets:</strong> Pets are <em>not allowed</em> on the premises.<br/>
-              <strong>Extra Beds:</strong> Available upon request for an additional <strong>₹1000/night</strong>.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">4. Dining & Restaurant</h3>
-            <p className="leading-relaxed">
-              <strong>Breakfast:</strong> Complimentary breakfast is served from <em>7:30 AM to 10:30 AM</em>.<br/>
-              <strong>Dinner:</strong> In-house multi-cuisine restaurant available till <em>11:00 PM</em>.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">5. Parking Facility</h3>
-            <p className="leading-relaxed">
-              <strong>Valet Parking:</strong> <em>Free valet parking</em> is available for all guests.<br/>
-              <strong>EV Charging:</strong> Dedicated spots available: subject to availability.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">6. Pool & Fitness Center</h3>
-            <p className="leading-relaxed">
-              <strong>Swimming Pool:</strong> Open from <em>6:00 AM to 8:00 PM</em>.<br/>
-              <strong>Gymnasium:</strong> 24/7 access: requires room key card.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">7. Additional Services</h3>
-            <p className="leading-relaxed">
-              <strong>Laundry:</strong> Same-day laundry service available.<br/>
-              <strong>Airport Shuttle:</strong> Paid shuttle service: please inform reception <em>24 hours</em> prior.
-            </p>
-          </div>
-        </div>
-
-        <h3 className="text-xl font-semibold mt-10 mb-4 text-gray-800">Weekly Schedule & Services</h3>
-        <div className="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-100 text-gray-700">
-                <th className="p-3 border-b border-gray-200">Day</th>
-                <th className="p-3 border-b border-gray-200">Room Cleaning Service</th>
-                <th className="p-3 border-b border-gray-200">Breakfast Timings</th>
-                <th className="p-3 border-b border-gray-200">Special Events/Dinners</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="p-3 font-medium">Monday</td>
-                <td className="p-3">9:00 AM - 1:00 PM</td>
-                <td className="p-3">7:30 AM - 10:00 AM</td>
-                <td className="p-3"><em>Welcome Drink Session</em></td>
-              </tr>
-              <tr className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="p-3 font-medium">Tuesday</td>
-                <td className="p-3">9:00 AM - 1:00 PM</td>
-                <td className="p-3">7:30 AM - 10:00 AM</td>
-                <td className="p-3">-</td>
-              </tr>
-              <tr className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="p-3 font-medium">Wednesday</td>
-                <td className="p-3">9:00 AM - 1:00 PM</td>
-                <td className="p-3">7:30 AM - 10:00 AM</td>
-                <td className="p-3"><strong>Live Music Night</strong></td>
-              </tr>
-              <tr className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="p-3 font-medium">Thursday</td>
-                <td className="p-3">9:00 AM - 1:00 PM</td>
-                <td className="p-3">7:30 AM - 10:00 AM</td>
-                <td className="p-3">-</td>
-              </tr>
-              <tr className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="p-3 font-medium">Friday</td>
-                <td className="p-3">9:00 AM - 1:00 PM</td>
-                <td className="p-3">7:30 AM - 10:30 AM</td>
-                <td className="p-3"><em>Seafood Buffet</em></td>
-              </tr>
-              <tr className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="p-3 font-medium">Saturday</td>
-                <td className="p-3">10:00 AM - 2:00 PM</td>
-                <td className="p-3">8:00 AM - 11:00 AM</td>
-                <td className="p-3"><strong>Gala Dinner & DJ</strong></td>
-              </tr>
-              <tr className="hover:bg-gray-50">
-                <td className="p-3 font-medium">Sunday</td>
-                <td className="p-3">10:00 AM - 2:00 PM</td>
-                <td className="p-3">8:00 AM - 11:00 AM</td>
-                <td className="p-3"><em>Sunday Brunch</em></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* ── Description ── */}
+      <p className="max-w-3xl border-y border-gray-300 my-15 py-10 text-gray-500">
+        Guests will be allocated on the ground floor according to availability.
+        You get a comfortable apartment with a true city feeling.
+        The price quoted is per room per night. Adjust the guests field for group pricing.
+      </p>
 
       <PaymentModal 
         isOpen={showPaymentModal}
