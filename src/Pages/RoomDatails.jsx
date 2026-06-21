@@ -284,30 +284,30 @@ const RoomDetails = () => {
 
         {/* ── STEP 1: Date + guests ── */}
         {step === 1 && (
-          <div className="flex flex-wrap items-end gap-4 w-full">
-            <div className="flex flex-wrap gap-4 flex-1 w-full">
-              <div className="flex flex-col flex-1 min-w-[130px]">
+          <div className="flex flex-col gap-5 w-full">
+            <div className="flex flex-wrap items-end gap-4 w-full">
+              <div className="flex flex-col flex-1 min-w-[140px]">
                 <label className="text-sm font-medium text-gray-700 mb-1">Check-In</label>
                 <input type="date" min={todayStr} value={checkIn}
                   onChange={e => { setCheckIn(e.target.value); setAvailChecked(false) }}
-                  className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full" />
+                  className="border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-400 w-full transition-all" />
               </div>
-              <div className="flex flex-col flex-1 min-w-[130px]">
+              <div className="flex flex-col flex-1 min-w-[140px]">
                 <label className="text-sm font-medium text-gray-700 mb-1">Check-Out</label>
                 <input type="date" min={checkIn || todayStr} value={checkOut}
                   onChange={e => { setCheckOut(e.target.value); setAvailChecked(false) }}
-                  className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full" />
+                  className="border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-400 w-full transition-all" />
               </div>
-              <div className="flex flex-col flex-[0.5] min-w-[80px]">
+              <div className="flex flex-col min-w-[100px] flex-[0.5]">
                 <label className="text-sm font-medium text-gray-700 mb-1">Guests</label>
                 <input type="number" min="1" max="10" value={guests}
                   onChange={e => setGuests(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full" />
+                  className="border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-400 w-full transition-all" />
               </div>
             </div>
             <button onClick={handleCheckAvailability} disabled={availLoading}
-              className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all
-                text-white rounded-lg px-8 py-2.5 font-medium disabled:opacity-60 whitespace-nowrap w-full md:w-auto flex-none">
+              className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all shadow-sm
+                text-white rounded-lg px-8 py-3 font-semibold disabled:opacity-60 whitespace-nowrap w-full md:w-auto md:self-start">
               {availLoading ? 'Checking...' : '🔍 Check Availability'}
             </button>
           </div>
