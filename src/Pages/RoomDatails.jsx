@@ -284,28 +284,28 @@ const RoomDetails = () => {
 
         {/* ── STEP 1: Date + guests ── */}
         {step === 1 && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 mb-1">Check-In</label>
+          <div className="flex flex-row items-end gap-2 sm:gap-4 w-full">
+            <div className="flex flex-col flex-[2] min-w-0">
+              <label className="text-sm font-medium text-gray-700 mb-1 whitespace-nowrap">Check-In</label>
               <input type="date" min={todayStr} value={checkIn}
                 onChange={e => { setCheckIn(e.target.value); setAvailChecked(false) }}
-                className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full" />
+                className="border border-gray-300 rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full text-sm" />
             </div>
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 mb-1">Check-Out</label>
+            <div className="flex flex-col flex-[2] min-w-0">
+              <label className="text-sm font-medium text-gray-700 mb-1 whitespace-nowrap">Check-Out</label>
               <input type="date" min={checkIn || todayStr} value={checkOut}
                 onChange={e => { setCheckOut(e.target.value); setAvailChecked(false) }}
-                className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full" />
+                className="border border-gray-300 rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full text-sm" />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-[1] min-w-0">
               <label className="text-sm font-medium text-gray-700 mb-1">Guests</label>
               <input type="number" min="1" max="10" value={guests}
                 onChange={e => setGuests(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full" />
+                className="border border-gray-300 rounded-lg px-2 py-2 outline-none focus:ring-2 focus:ring-blue-400 w-full text-sm" />
             </div>
             <button onClick={handleCheckAvailability} disabled={availLoading}
-              className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all
-                text-white rounded-lg px-6 py-[9px] font-medium disabled:opacity-60 whitespace-nowrap w-full">
+              className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all flex-[2] min-w-0
+                text-white rounded-lg px-2 sm:px-4 py-[9px] font-medium disabled:opacity-60 whitespace-nowrap text-sm sm:text-base">
               {availLoading ? 'Checking...' : '🔍 Check Availability'}
             </button>
           </div>
@@ -450,7 +450,7 @@ const RoomDetails = () => {
         
         <div className="space-y-6">
           <div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">Check-in and Check-out Times</h3>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">1. Check-in and Check-out Times</h3>
             <p className="leading-relaxed">
               <strong>Check-in:</strong> Starts from <em>2:00 PM</em> onwards.<br/>
               <strong>Check-out:</strong> Until <em>11:00 AM</em>.
@@ -458,7 +458,7 @@ const RoomDetails = () => {
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">Cancellation Policy</h3>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">2. Cancellation Policy</h3>
             <p className="leading-relaxed">
               <strong>Free Cancellation:</strong> Available up to <em>48 hours</em> before check-in.<br/>
               <strong>Late Cancellation:</strong> Incurs a fee equal to the first night's stay.
@@ -466,10 +466,42 @@ const RoomDetails = () => {
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-800">Pet Policy & Extra Beds</h3>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">3. Pet Policy & Extra Beds</h3>
             <p className="leading-relaxed">
               <strong>Pets:</strong> Pets are <em>not allowed</em> on the premises.<br/>
               <strong>Extra Beds:</strong> Available upon request for an additional <strong>₹1000/night</strong>.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">4. Dining & Restaurant</h3>
+            <p className="leading-relaxed">
+              <strong>Breakfast:</strong> Complimentary breakfast is served from <em>7:30 AM to 10:30 AM</em>.<br/>
+              <strong>Dinner:</strong> In-house multi-cuisine restaurant available till <em>11:00 PM</em>.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">5. Parking Facility</h3>
+            <p className="leading-relaxed">
+              <strong>Valet Parking:</strong> <em>Free valet parking</em> is available for all guests.<br/>
+              <strong>EV Charging:</strong> Dedicated spots available: subject to availability.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">6. Pool & Fitness Center</h3>
+            <p className="leading-relaxed">
+              <strong>Swimming Pool:</strong> Open from <em>6:00 AM to 8:00 PM</em>.<br/>
+              <strong>Gymnasium:</strong> 24/7 access: requires room key card.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold mb-2 text-gray-800">7. Additional Services</h3>
+            <p className="leading-relaxed">
+              <strong>Laundry:</strong> Same-day laundry service available.<br/>
+              <strong>Airport Shuttle:</strong> Paid shuttle service: please inform reception <em>24 hours</em> prior.
             </p>
           </div>
         </div>
