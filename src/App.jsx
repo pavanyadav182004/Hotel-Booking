@@ -15,6 +15,7 @@ import Contact from './Pages/Contact'
 
 import Layout from './Pages/Hotel Owner/Layout'
 import Dashboard from './Pages/Hotel Owner/Dashboard'
+import AddHotel from './Pages/Hotel Owner/AddHotel'
 import Addroom from './Pages/Hotel Owner/Addroom'
 import ListRoom from './Pages/Hotel Owner/ListRoom'
 
@@ -79,6 +80,7 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
+            <Route path="add-hotel" element={<AddHotel />} />
             <Route path="add-room" element={<Addroom />} />
             <Route path="list-room" element={<ListRoom />} />
           </Route>
