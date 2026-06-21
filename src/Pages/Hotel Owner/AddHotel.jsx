@@ -7,6 +7,7 @@ import { apiRequest } from '../../api'
 const AddHotel = () => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
+  const [policies, setPolicies] = useState([])
 
   const [hotel, setHotel] = useState({
     name: '',
@@ -74,6 +75,20 @@ const AddHotel = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const insertFormat = (idx, prefix, suffix, placeholder) => {
+    const ta = document.getElementById(`desc-${idx}`)
+    if (!ta) return
+    const start = ta.selectionStart
+    const end = ta.selectionEnd
+    const current = policies[idx].description
+    const selected = current.substring(start, end) || placeholder
+    const newText = current.substring(0, start) + prefix + selected + suffix + current.substring(end)
+    const updated = [...policies]
+    updated[idx].description = newText
+    setPolicies(updated)
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(start + prefix.length, start + prefix.length + selected.length) }, 0)
   }
 
   const AMENITIES = ['Free Wi-Fi', 'Room Service', 'Free Breakfast', 'Swimming Pool', 'Gym', 'Parking', 'Air Conditioning']
@@ -211,59 +226,107 @@ const AddHotel = () => {
         </div>
       </form>
 
-      {/* ── Policy Headings ── */}
-      <div className='mt-12 max-w-4xl'>
-        <h2 className='text-xl font-semibold text-gray-800 mb-6'>Hotel Policies & Important Information</h2>
-        <div className='bg-white border border-gray-200 rounded-xl p-6 space-y-5 text-sm text-gray-700 shadow-sm'>
-          {[
-            { num: 1, title: 'Check-in and Check-out Times', content: <><strong>Check-in:</strong> Starts from <em>2:00 PM</em> onwards.<br /><strong>Check-out:</strong> Until <em>11:00 AM</em>.</> },
-            { num: 2, title: 'Cancellation Policy', content: <><strong>Free Cancellation:</strong> Available up to <em>48 hours</em> before check-in.<br /><strong>Late Cancellation:</strong> Incurs a fee equal to the <em>first night's</em> stay.</> },
-            { num: 3, title: 'Pet Policy & Extra Beds', content: <><strong>Pets:</strong> Pets are <em>not allowed</em> on the premises.<br /><strong>Extra Beds:</strong> Available upon request for an additional <strong>₹1000/night</strong>.</> },
-            { num: 4, title: 'Dining & Restaurant', content: <><strong>Breakfast:</strong> Complimentary breakfast from <em>7:30 AM to 10:30 AM</em>.<br /><strong>Dinner:</strong> Multi-cuisine restaurant available till <em>11:00 PM</em>.</> },
-            { num: 5, title: 'Parking Facility', content: <><strong>Valet Parking:</strong> <em>Free valet parking</em> for all guests.<br /><strong>EV Charging:</strong> Dedicated spots available: subject to availability.</> },
-            { num: 6, title: 'Pool & Fitness Center', content: <><strong>Swimming Pool:</strong> Open from <em>6:00 AM to 8:00 PM</em>.<br /><strong>Gymnasium:</strong> 24/7 access: requires room key card.</> },
-            { num: 7, title: 'Additional Services', content: <><strong>Laundry:</strong> Same-day laundry service available.<br /><strong>Airport Shuttle:</strong> Paid service: inform reception <em>24 hours</em> prior.</> },
-          ].map(({ num, title, content }) => (
-            <div key={num}>
-              <h3 className='text-base font-semibold text-gray-800 mb-1'>{num}. {title}</h3>
-              <p className='leading-relaxed'>{content}</p>
+      {/* ── Policy Editor ── */}
+      <div className='mt-12 max-w-4xl mb-12'>
+        <div className='flex items-center justify-between mb-4'>
+          <h2 className='text-xl font-semibold text-gray-800'>Hotel Policies & Important Information</h2>
+          <button type='button'
+            onClick={() => setPolicies([...policies, { heading: '', description: '' }])}
+            className='bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition-all active:scale-95'>
+            + Add Policy
+          </button>
+        </div>
+
+        <div className='space-y-4'>
+          {policies.map((policy, idx) => (
+            <div key={idx} className='bg-white border border-gray-200 rounded-xl p-5 shadow-sm'>
+
+              {/* Heading row */}
+              <div className='flex items-center gap-3 mb-3'>
+                <span className='text-base font-bold text-blue-600 min-w-[28px]'>{idx + 1}.</span>
+                <input
+                  className='flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-400'
+                  placeholder='Policy Heading (e.g. Check-in and Check-out Times)'
+                  value={policy.heading}
+                  onChange={e => {
+                    const updated = [...policies]
+                    updated[idx].heading = e.target.value
+                    setPolicies(updated)
+                  }}
+                />
+                <button type='button'
+                  onClick={() => setPolicies(policies.filter((_, i) => i !== idx))}
+                  className='text-red-400 hover:text-red-600 text-lg font-bold transition-colors px-1'>
+                  ✕
+                </button>
+              </div>
+
+              {/* Formatting toolbar */}
+              <div className='flex flex-wrap gap-2 mb-2'>
+                <button type='button'
+                  onClick={() => insertFormat(idx, '**', '**', 'bold text')}
+                  className='w-8 h-8 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  title='Bold'>
+                  B
+                </button>
+                <button type='button'
+                  onClick={() => insertFormat(idx, '*', '*', 'italic text')}
+                  className='w-8 h-8 border border-gray-300 rounded italic text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  title='Italic'>
+                  I
+                </button>
+                <button type='button'
+                  onClick={() => insertFormat(idx, '**', ':** value', 'Label')}
+                  className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  title='Bold + Colon'>
+                  B:
+                </button>
+                <button type='button'
+                  onClick={() => insertFormat(idx, '**', ':** *value*', 'Label')}
+                  className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  title='Bold + Colon + Italic value'>
+                  B:I
+                </button>
+                <span className='text-xs text-gray-400 self-center ml-1 hidden sm:block'>
+                  **bold** &nbsp;|&nbsp; *italic* &nbsp;|&nbsp; **Label:** value
+                </span>
+              </div>
+
+              {/* Description textarea */}
+              <textarea
+                id={`desc-${idx}`}
+                rows={3}
+                className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 resize-none font-mono'
+                placeholder='e.g. **Check-in:** Starts from *2:00 PM* onwards.'
+                value={policy.description}
+                onChange={e => {
+                  const updated = [...policies]
+                  updated[idx].description = e.target.value
+                  setPolicies(updated)
+                }}
+              />
+
+              {/* Live Preview */}
+              {policy.description && (
+                <div className='mt-2 text-sm text-gray-700 border-t pt-2'>
+                  <span className='text-xs text-gray-400 mb-1 block font-medium'>Preview:</span>
+                  <p dangerouslySetInnerHTML={{
+                    __html: policy.description
+                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                      .replace(/\n/g, '<br/>')
+                  }} />
+                </div>
+              )}
             </div>
           ))}
-        </div>
-      </div>
 
-      {/* ── Weekly Schedule Table ── */}
-      <div className='mt-10 max-w-4xl mb-12'>
-        <h2 className='text-xl font-semibold text-gray-800 mb-4'>Weekly Schedule & Services</h2>
-        <div className='border border-gray-200 rounded-xl overflow-x-auto shadow-sm'>
-          <table className='w-full text-sm'>
-            <thead className='bg-gray-50 text-gray-700'>
-              <tr>
-                <th className='py-3 px-4 text-left'>Day</th>
-                <th className='py-3 px-4 text-left'>Room Cleaning</th>
-                <th className='py-3 px-4 text-left'>Breakfast Timings</th>
-                <th className='py-3 px-4 text-left'>Special Events/Dinners</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { day: 'Monday',    clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: 'Welcome Drink Session' },
-                { day: 'Tuesday',   clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: '—' },
-                { day: 'Wednesday', clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: 'Live Music Night' },
-                { day: 'Thursday',  clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: '—' },
-                { day: 'Friday',    clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:30 AM', event: 'Seafood Buffet' },
-                { day: 'Saturday',  clean: '10:00 AM – 2:00 PM', bfast: '8:00 AM – 11:00 AM', event: 'Gala Dinner & DJ' },
-                { day: 'Sunday',    clean: '10:00 AM – 2:00 PM', bfast: '8:00 AM – 11:00 AM', event: 'Sunday Brunch' },
-              ].map(({ day, clean, bfast, event }) => (
-                <tr key={day} className='border-t hover:bg-gray-50'>
-                  <td className='py-3 px-4 font-medium'>{day}</td>
-                  <td className='py-3 px-4'>{clean}</td>
-                  <td className='py-3 px-4'>{bfast}</td>
-                  <td className='py-3 px-4'>{event}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {policies.length === 0 && (
+            <div className='text-center py-10 border-2 border-dashed border-gray-200 rounded-xl text-gray-400'>
+              <p className='text-base mb-1'>No policies added yet.</p>
+              <p className='text-sm'>Click <strong className='text-blue-500'>+ Add Policy</strong> to get started.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
