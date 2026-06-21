@@ -601,6 +601,46 @@ const Dashboard = () => {
         </table>
       </div>
 
+      {/* ── Hotel Policies Section ── */}
+      <h2 className='text-xl text-blue-950/80 font-medium mt-10 mb-6'>Hotel Policies & Important Information</h2>
+      <div className='w-full max-w-6xl bg-white border border-gray-200 rounded-lg p-6 mb-8 space-y-5 text-sm text-gray-700'>
+        <div>
+          <h3 className='text-base font-semibold text-gray-800 mb-1'>1. Check-in and Check-out Times</h3>
+          <p><strong>Check-in:</strong> Starts from <em>2:00 PM</em> onwards.<br />
+          <strong>Check-out:</strong> Until <em>11:00 AM</em>.</p>
+        </div>
+        <div>
+          <h3 className='text-base font-semibold text-gray-800 mb-1'>2. Cancellation Policy</h3>
+          <p><strong>Free Cancellation:</strong> Available up to <em>48 hours</em> before check-in.<br />
+          <strong>Late Cancellation:</strong> Incurs a fee equal to the <em>first night's</em> stay.</p>
+        </div>
+        <div>
+          <h3 className='text-base font-semibold text-gray-800 mb-1'>3. Pet Policy & Extra Beds</h3>
+          <p><strong>Pets:</strong> Pets are <em>not allowed</em> on the premises.<br />
+          <strong>Extra Beds:</strong> Available upon request for an additional <strong>₹1000/night</strong>.</p>
+        </div>
+        <div>
+          <h3 className='text-base font-semibold text-gray-800 mb-1'>4. Dining & Restaurant</h3>
+          <p><strong>Breakfast:</strong> Complimentary breakfast served from <em>7:30 AM to 10:30 AM</em>.<br />
+          <strong>Dinner:</strong> In-house multi-cuisine restaurant available till <em>11:00 PM</em>.</p>
+        </div>
+        <div>
+          <h3 className='text-base font-semibold text-gray-800 mb-1'>5. Parking Facility</h3>
+          <p><strong>Valet Parking:</strong> <em>Free valet parking</em> is available for all guests.<br />
+          <strong>EV Charging:</strong> Dedicated spots available: subject to availability.</p>
+        </div>
+        <div>
+          <h3 className='text-base font-semibold text-gray-800 mb-1'>6. Pool & Fitness Center</h3>
+          <p><strong>Swimming Pool:</strong> Open from <em>6:00 AM to 8:00 PM</em>.<br />
+          <strong>Gymnasium:</strong> 24/7 access: requires room key card.</p>
+        </div>
+        <div>
+          <h3 className='text-base font-semibold text-gray-800 mb-1'>7. Additional Services</h3>
+          <p><strong>Laundry:</strong> Same-day laundry service available.<br />
+          <strong>Airport Shuttle:</strong> Paid shuttle service: please inform reception <em>24 hours</em> prior.</p>
+        </div>
+      </div>
+
       <h2 className='text-xl text-blue-950/80 font-medium mt-10 mb-4'>Hotel Policies & Weekly Schedule</h2>
       <div className='w-full max-w-6xl border border-gray-300 rounded-lg overflow-x-auto mb-10'>
         <table className='w-full text-sm'>
