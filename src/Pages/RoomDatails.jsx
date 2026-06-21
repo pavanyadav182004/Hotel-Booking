@@ -453,6 +453,41 @@ const RoomDetails = () => {
         The price quoted is per room per night. Adjust the guests field for group pricing.
       </p>
 
+      {/* ── Weekly Schedule & Services Table ── */}
+      <div className="max-w-4xl mb-16">
+        <h2 className="text-2xl md:text-3xl font-playfair mb-6 text-gray-800">Weekly Schedule & Services</h2>
+        <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
+                <th className="py-3 px-4 text-left font-semibold">Day</th>
+                <th className="py-3 px-4 text-left font-semibold">Room Cleaning</th>
+                <th className="py-3 px-4 text-left font-semibold">Breakfast Timings</th>
+                <th className="py-3 px-4 text-left font-semibold">Special Events / Dinners</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { day: 'Monday',    clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: 'Welcome Drink Session' },
+                { day: 'Tuesday',   clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: '—' },
+                { day: 'Wednesday', clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: 'Live Music Night' },
+                { day: 'Thursday',  clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: '—' },
+                { day: 'Friday',    clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:30 AM', event: 'Seafood Buffet' },
+                { day: 'Saturday',  clean: '10:00 AM – 2:00 PM', bfast: '8:00 AM – 11:00 AM', event: 'Gala Dinner & DJ' },
+                { day: 'Sunday',    clean: '10:00 AM – 2:00 PM', bfast: '8:00 AM – 11:00 AM', event: 'Sunday Brunch' },
+              ].map(({ day, clean, bfast, event }) => (
+                <tr key={day} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <td className="py-3 px-4 font-medium text-gray-800">{day}</td>
+                  <td className="py-3 px-4 text-gray-600">{clean}</td>
+                  <td className="py-3 px-4 text-gray-600">{bfast}</td>
+                  <td className="py-3 px-4 text-gray-600 italic">{event}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <PaymentModal 
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
