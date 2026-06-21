@@ -1,13 +1,16 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import Title from '../../Components/Title'
 import { apiRequest } from '../../api'
 
 const AddHotel = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  
   const [loading, setLoading] = useState(false)
   const [policies, setPolicies] = useState([])
+  const [editId, setEditId] = useState(null)
 
   const [hotel, setHotel] = useState({
     name: '',
@@ -22,6 +25,32 @@ const AddHotel = () => {
     available: true,
     amenities: ['Free Wi-Fi', 'Room Service', 'Free Breakfast'],
   })
+
+  useEffect(() => {
+    if (location.state?.hotel) {
+      const h = location.state.hotel
+      setEditId(h.hotelId)
+      setHotel({
+        name: h.hotel.name || '',
+        city: h.hotel.city || '',
+        address: h.hotel.address || '',
+        heading: h.heading || '',
+        description: h.description || '',
+        pricePerNight: h.pricePerNight || 0,
+        rating: h.rating || 4.5,
+        images: h.images?.length ? [...h.images, '', '', '', '', ''].slice(0, 5) : ['', '', '', '', ''],
+        roomType: h.roomType || 'DELUXE',
+        available: h.isAvailable !== undefined ? h.isAvailable : true,
+        amenities: h.amenities || [],
+      })
+      if (h.policies) {
+        try {
+          const p = JSON.parse(h.policies)
+          if (Array.isArray(p)) setPolicies(p)
+        } catch { /* ignore */ }
+      }
+    }
+  }, [location.state])
 
   const handleImageUpload = (e, index) => {
     const file = e.target.files?.[0]
@@ -59,20 +88,22 @@ const AddHotel = () => {
     }
     setLoading(true)
     try {
-      await apiRequest('/hotels', {
-        method: 'POST',
+      const endpoint = editId ? `/hotels/${editId}` : '/hotels'
+      const method = editId ? 'PUT' : 'POST'
+      await apiRequest(endpoint, {
+        method,
         body: JSON.stringify({
           ...hotel,
           pricePerNight: Number(hotel.pricePerNight),
           rating: Number(hotel.rating),
-          images: hotel.images.filter(img => img.trim() !== ''),
+          images: hotel.images.filter(img => img && img.trim() !== ''),
           policies: JSON.stringify(policies),
         }),
       })
-      toast.success('✅ Hotel added successfully!')
+      toast.success(editId ? '✅ Hotel updated successfully!' : '✅ Hotel added successfully!')
       setTimeout(() => navigate('/owner'), 1500)
     } catch (err) {
-      toast.error(err.message || 'Failed to add hotel.')
+      toast.error(err.message || (editId ? 'Failed to update hotel.' : 'Failed to add hotel.'))
     } finally {
       setLoading(false)
     }
@@ -96,8 +127,8 @@ const AddHotel = () => {
 
   return (
     <div>
-      <Title align='left' font='outfit' title='Add New Hotel'
-        subTitle='Fill in the details below to add a new hotel to the system.' />
+      <Title align='left' font='outfit' title={editId ? 'Update Hotel' : 'Add New Hotel'}
+        subTitle={editId ? 'Update hotel details, images, and policies.' : 'Fill in the details below to add a new hotel to the system.'} />
 
       {/* ── Hotel Form ── */}
       <form onSubmit={handleSubmit} className='mt-8 max-w-4xl bg-white border border-gray-200 rounded-xl p-6 shadow-sm'>
@@ -218,7 +249,7 @@ const AddHotel = () => {
         <div className='flex gap-3 mt-8'>
           <button type='submit' disabled={loading}
             className='bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-all active:scale-95 disabled:opacity-60 shadow-sm'>
-            {loading ? 'Adding Hotel...' : '🏨 Add Hotel'}
+            {loading ? (editId ? 'Updating Hotel...' : 'Adding Hotel...') : (editId ? '🏨 Update Hotel' : '🏨 Add Hotel')}
           </button>
           <button type='button' onClick={() => navigate('/owner')}
             className='bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-lg font-medium transition-all'>
