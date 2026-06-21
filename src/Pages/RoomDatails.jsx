@@ -453,40 +453,35 @@ const RoomDetails = () => {
         The price quoted is per room per night. Adjust the guests field for group pricing.
       </p>
 
-      {/* ── Weekly Schedule & Services Table ── */}
-      <div className="max-w-4xl mb-16">
-        <h2 className="text-2xl md:text-3xl font-playfair mb-6 text-gray-800">Weekly Schedule & Services</h2>
-        <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 text-gray-700 border-b border-gray-200">
-                <th className="py-3 px-4 text-left font-semibold">Day</th>
-                <th className="py-3 px-4 text-left font-semibold">Room Cleaning</th>
-                <th className="py-3 px-4 text-left font-semibold">Breakfast Timings</th>
-                <th className="py-3 px-4 text-left font-semibold">Special Events / Dinners</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { day: 'Monday',    clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: 'Welcome Drink Session' },
-                { day: 'Tuesday',   clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: '—' },
-                { day: 'Wednesday', clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: 'Live Music Night' },
-                { day: 'Thursday',  clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:00 AM', event: '—' },
-                { day: 'Friday',    clean: '9:00 AM – 1:00 PM',  bfast: '7:30 AM – 10:30 AM', event: 'Seafood Buffet' },
-                { day: 'Saturday',  clean: '10:00 AM – 2:00 PM', bfast: '8:00 AM – 11:00 AM', event: 'Gala Dinner & DJ' },
-                { day: 'Sunday',    clean: '10:00 AM – 2:00 PM', bfast: '8:00 AM – 11:00 AM', event: 'Sunday Brunch' },
-              ].map(({ day, clean, bfast, event }) => (
-                <tr key={day} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="py-3 px-4 font-medium text-gray-800">{day}</td>
-                  <td className="py-3 px-4 text-gray-600">{clean}</td>
-                  <td className="py-3 px-4 text-gray-600">{bfast}</td>
-                  <td className="py-3 px-4 text-gray-600 italic">{event}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* ── Dynamic Policies ── */}
+      {(() => {
+        try {
+          const raw = hotel?.policies
+          if (!raw) return null
+          const list = JSON.parse(raw)
+          if (!Array.isArray(list) || list.length === 0) return null
+          return (
+            <div className="max-w-3xl mb-16">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-6">Hotel Policies & Important Information</h2>
+              <div className="space-y-5 text-sm text-gray-700">
+                {list.map((policy, idx) => (
+                  <div key={idx}>
+                    <h3 className="text-base font-semibold text-gray-800 mb-1">
+                      {idx + 1}. {policy.heading}
+                    </h3>
+                    <p className="leading-relaxed" dangerouslySetInnerHTML={{
+                      __html: (policy.description || '')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/\n/g, '<br/>')
+                    }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        } catch { return null }
+      })()}
 
       <PaymentModal 
         isOpen={showPaymentModal}

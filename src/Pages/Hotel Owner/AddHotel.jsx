@@ -66,6 +66,7 @@ const AddHotel = () => {
           pricePerNight: Number(hotel.pricePerNight),
           rating: Number(hotel.rating),
           images: hotel.images.filter(img => img.trim() !== ''),
+          policies: JSON.stringify(policies),
         }),
       })
       toast.success('✅ Hotel added successfully!')
