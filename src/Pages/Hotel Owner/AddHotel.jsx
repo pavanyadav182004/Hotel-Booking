@@ -10,6 +10,7 @@ const AddHotel = () => {
   
   const [loading, setLoading] = useState(false)
   const [policies, setPolicies] = useState([])
+  const [customDetails, setCustomDetails] = useState([])
   const [editId, setEditId] = useState(null)
 
   const [hotel, setHotel] = useState({
@@ -47,6 +48,12 @@ const AddHotel = () => {
         try {
           const p = JSON.parse(h.policies)
           if (Array.isArray(p)) setPolicies(p)
+        } catch { /* ignore */ }
+      }
+      if (h.customDetails) {
+        try {
+          const cd = JSON.parse(h.customDetails)
+          if (Array.isArray(cd)) setCustomDetails(cd)
         } catch { /* ignore */ }
       }
     }
@@ -98,6 +105,7 @@ const AddHotel = () => {
           rating: Number(hotel.rating),
           images: hotel.images.filter(img => img && img.trim() !== ''),
           policies: JSON.stringify(policies),
+          customDetails: JSON.stringify(customDetails),
         }),
       })
       toast.success(editId ? '✅ Hotel updated successfully!' : '✅ Hotel added successfully!')
@@ -120,6 +128,20 @@ const AddHotel = () => {
     const updated = [...policies]
     updated[idx].description = newText
     setPolicies(updated)
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(start + prefix.length, start + prefix.length + selected.length) }, 0)
+  }
+
+  const insertFormatDetails = (idx, prefix, suffix, placeholder) => {
+    const ta = document.getElementById(`custom-desc-${idx}`)
+    if (!ta) return
+    const start = ta.selectionStart
+    const end = ta.selectionEnd
+    const current = customDetails[idx].description || ''
+    const selected = current.substring(start, end) || placeholder
+    const newText = current.substring(0, start) + prefix + selected + suffix + current.substring(end)
+    const updated = [...customDetails]
+    updated[idx].description = newText
+    setCustomDetails(updated)
     setTimeout(() => { ta.focus(); ta.setSelectionRange(start + prefix.length, start + prefix.length + selected.length) }, 0)
   }
 
@@ -357,6 +379,114 @@ const AddHotel = () => {
             <div className='text-center py-10 border-2 border-dashed border-gray-200 rounded-xl text-gray-400'>
               <p className='text-base mb-1'>No policies added yet.</p>
               <p className='text-sm'>Click <strong className='text-blue-500'>+ Add Policy</strong> to get started.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Hotel Custom Details Editor (Max 10) ── */}
+      <div className='mt-12 max-w-4xl mb-12 border-t pt-8'>
+        <div className='flex items-center justify-between mb-4'>
+          <div>
+            <h2 className='text-xl font-semibold text-gray-800'>Hotel Custom Details (Max 10)</h2>
+            <p className='text-xs text-gray-500 mt-1'>Add custom headings and descriptions to show in the hotel detail page (e.g. food options, nearby attractions, special services).</p>
+          </div>
+          <button type='button'
+            disabled={customDetails.length >= 10}
+            onClick={() => setCustomDetails([...customDetails, { heading: '', description: '' }])}
+            className='bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 text-white text-sm px-4 py-2 rounded-lg transition-all active:scale-95 disabled:scale-100 disabled:opacity-60'>
+            + Add Detail
+          </button>
+        </div>
+
+        <div className='space-y-4'>
+          {customDetails.map((detail, idx) => (
+            <div key={idx} className='bg-white border border-gray-200 rounded-xl p-5 shadow-sm'>
+
+              {/* Heading row */}
+              <div className='flex items-center gap-3 mb-3'>
+                <span className='text-base font-bold text-emerald-600 min-w-[28px]'>{idx + 1}.</span>
+                <input
+                  className='flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-emerald-400'
+                  placeholder='Heading (e.g. Food Menu, Nearby Attractions)'
+                  value={detail.heading}
+                  onChange={e => {
+                    const updated = [...customDetails]
+                    updated[idx].heading = e.target.value
+                    setCustomDetails(updated)
+                  }}
+                />
+                <button type='button'
+                  onClick={() => setCustomDetails(customDetails.filter((_, i) => i !== idx))}
+                  className='text-red-400 hover:text-red-600 text-lg font-bold transition-colors px-1'>
+                  ✕
+                </button>
+              </div>
+
+              {/* Formatting toolbar */}
+              <div className='flex flex-wrap gap-2 mb-2'>
+                <button type='button'
+                  onClick={() => insertFormatDetails(idx, '**', '**', 'bold text')}
+                  className='w-8 h-8 border border-gray-300 rounded font-bold text-sm hover:bg-emerald-50 hover:border-emerald-400 transition-colors'
+                  title='Bold'>
+                  B
+                </button>
+                <button type='button'
+                  onClick={() => insertFormatDetails(idx, '*', '*', 'italic text')}
+                  className='w-8 h-8 border border-gray-300 rounded italic text-sm hover:bg-emerald-50 hover:border-emerald-400 transition-colors'
+                  title='Italic'>
+                  I
+                </button>
+                <button type='button'
+                  onClick={() => insertFormatDetails(idx, '**', ':** value', 'Label')}
+                  className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-emerald-50 hover:border-emerald-400 transition-colors'
+                  title='Bold + Colon'>
+                  B:
+                </button>
+                <button type='button'
+                  onClick={() => insertFormatDetails(idx, '**', ':** *value*', 'Label')}
+                  className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-emerald-50 hover:border-emerald-400 transition-colors'
+                  title='Bold + Colon + Italic value'>
+                  B:I
+                </button>
+                <span className='text-xs text-gray-400 self-center ml-1 hidden sm:block'>
+                  **bold** &nbsp;|&nbsp; *italic* &nbsp;|&nbsp; **Label:** value
+                </span>
+              </div>
+
+              {/* Description textarea */}
+              <textarea
+                id={`custom-desc-${idx}`}
+                rows={3}
+                className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 resize-none font-mono'
+                placeholder='e.g. **Breakfast:** Serving from *7:00 AM* to *10:00 AM*.'
+                value={detail.description}
+                onChange={e => {
+                  const updated = [...customDetails]
+                  updated[idx].description = e.target.value
+                  setCustomDetails(updated)
+                }}
+              />
+
+              {/* Live Preview */}
+              {detail.description && (
+                <div className='mt-2 text-sm text-gray-700 border-t pt-2'>
+                  <span className='text-xs text-gray-400 mb-1 block font-medium'>Preview:</span>
+                  <p dangerouslySetInnerHTML={{
+                    __html: detail.description
+                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                      .replace(/\n/g, '<br/>')
+                  }} />
+                </div>
+              )}
+            </div>
+          ))}
+
+          {customDetails.length === 0 && (
+            <div className='text-center py-10 border-2 border-dashed border-gray-200 rounded-xl text-gray-400'>
+              <p className='text-base mb-1'>No custom details added yet.</p>
+              <p className='text-sm'>Click <strong className='text-emerald-500'>+ Add Detail</strong> to add up to 10 heading/description blocks.</p>
             </div>
           )}
         </div>

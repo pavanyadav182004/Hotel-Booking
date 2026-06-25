@@ -104,6 +104,8 @@ export function toRoomCard(hotel) {
     heading:      hotel.heading,
     rating:       hotel.rating,
     rooms:        hotel.rooms || [],
+    policies:     hotel.policies,
+    customDetails: hotel.customDetails,
   }
 }
 

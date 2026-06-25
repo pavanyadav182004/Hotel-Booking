@@ -284,7 +284,7 @@ const RoomDetails = () => {
 
         {/* ── STEP 1: Date + guests ── */}
         {step === 1 && (
-          <div className="flex flex-col gap-5 w-full">
+          <div className="w-full">
             <div className="flex flex-wrap items-end gap-4 w-full">
               <div className="flex flex-col flex-1 min-w-[140px]">
                 <label className="text-sm font-medium text-gray-700 mb-1">Check-In</label>
@@ -304,12 +304,12 @@ const RoomDetails = () => {
                   onChange={e => setGuests(e.target.value)}
                   className="border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-400 w-full transition-all" />
               </div>
+              <button onClick={handleCheckAvailability} disabled={availLoading}
+                className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all shadow-sm
+                  text-white rounded-lg px-8 py-2.5 font-semibold disabled:opacity-60 whitespace-nowrap h-[46px] flex items-center justify-center flex-1 md:flex-initial min-w-[160px]">
+                {availLoading ? 'Checking...' : '🔍 Check Availability'}
+              </button>
             </div>
-            <button onClick={handleCheckAvailability} disabled={availLoading}
-              className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all shadow-sm
-                text-white rounded-lg px-8 py-3 font-semibold disabled:opacity-60 whitespace-nowrap w-full md:w-auto md:self-start">
-              {availLoading ? 'Checking...' : '🔍 Check Availability'}
-            </button>
           </div>
         )}
 
@@ -475,6 +475,40 @@ const RoomDetails = () => {
                         .replace(/\*(.*?)\*/g, '<em>$1</em>')
                         .replace(/\n/g, '<br/>')
                     }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        } catch { return null }
+      })()}
+
+      {/* ── Dynamic Custom Details ── */}
+      {(() => {
+        try {
+          const raw = hotel?.customDetails
+          if (!raw) return null
+          const list = JSON.parse(raw)
+          if (!Array.isArray(list) || list.length === 0) return null
+          return (
+            <div className="max-w-3xl mb-16 border-t pt-8">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-6">Additional Hotel Details</h2>
+              <div className="space-y-6 text-sm text-gray-700">
+                {list.map((detail, idx) => (
+                  <div key={idx} className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
+                    {detail.heading && (
+                      <h3 className="text-base font-bold text-gray-800 mb-2">
+                        {detail.heading}
+                      </h3>
+                    )}
+                    {detail.description && (
+                      <p className="leading-relaxed" dangerouslySetInnerHTML={{
+                        __html: detail.description
+                          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                          .replace(/\n/g, '<br/>')
+                      }} />
+                    )}
                   </div>
                 ))}
               </div>
