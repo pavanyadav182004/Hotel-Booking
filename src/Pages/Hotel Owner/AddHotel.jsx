@@ -394,7 +394,7 @@ const AddHotel = () => {
           <button type='button'
             disabled={customDetails.length >= 10}
             onClick={() => setCustomDetails([...customDetails, { heading: '', description: '' }])}
-            className='bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 text-white text-sm px-4 py-2 rounded-lg transition-all active:scale-95 disabled:scale-100 disabled:opacity-60'>
+            className='bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm px-4 py-2 rounded-lg transition-all active:scale-95 disabled:scale-100 disabled:opacity-60'>
             + Add Detail
           </button>
         </div>
@@ -405,9 +405,9 @@ const AddHotel = () => {
 
               {/* Heading row */}
               <div className='flex items-center gap-3 mb-3'>
-                <span className='text-base font-bold text-emerald-600 min-w-[28px]'>{idx + 1}.</span>
+                <span className='text-base font-bold text-blue-600 min-w-[28px]'>{idx + 1}.</span>
                 <input
-                  className='flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-emerald-400'
+                  className='flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-400'
                   placeholder='Heading (e.g. Food Menu, Nearby Attractions)'
                   value={detail.heading}
                   onChange={e => {
@@ -427,25 +427,25 @@ const AddHotel = () => {
               <div className='flex flex-wrap gap-2 mb-2'>
                 <button type='button'
                   onClick={() => insertFormatDetails(idx, '**', '**', 'bold text')}
-                  className='w-8 h-8 border border-gray-300 rounded font-bold text-sm hover:bg-emerald-50 hover:border-emerald-400 transition-colors'
+                  className='w-8 h-8 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors'
                   title='Bold'>
                   B
                 </button>
                 <button type='button'
                   onClick={() => insertFormatDetails(idx, '*', '*', 'italic text')}
-                  className='w-8 h-8 border border-gray-300 rounded italic text-sm hover:bg-emerald-50 hover:border-emerald-400 transition-colors'
+                  className='w-8 h-8 border border-gray-300 rounded italic text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors'
                   title='Italic'>
                   I
                 </button>
                 <button type='button'
                   onClick={() => insertFormatDetails(idx, '**', ':** value', 'Label')}
-                  className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-emerald-50 hover:border-emerald-400 transition-colors'
+                  className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-blue-50 hover:border-blue-400 transition-colors'
                   title='Bold + Colon'>
                   B:
                 </button>
                 <button type='button'
                   onClick={() => insertFormatDetails(idx, '**', ':** *value*', 'Label')}
-                  className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-emerald-50 hover:border-emerald-400 transition-colors'
+                  className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-blue-50 hover:border-blue-400 transition-colors'
                   title='Bold + Colon + Italic value'>
                   B:I
                 </button>
@@ -458,7 +458,7 @@ const AddHotel = () => {
               <textarea
                 id={`custom-desc-${idx}`}
                 rows={3}
-                className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 resize-none font-mono'
+                className='w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 resize-none font-mono'
                 placeholder='e.g. **Breakfast:** Serving from *7:00 AM* to *10:00 AM*.'
                 value={detail.description}
                 onChange={e => {
@@ -486,7 +486,7 @@ const AddHotel = () => {
           {customDetails.length === 0 && (
             <div className='text-center py-10 border-2 border-dashed border-gray-200 rounded-xl text-gray-400'>
               <p className='text-base mb-1'>No custom details added yet.</p>
-              <p className='text-sm'>Click <strong className='text-emerald-500'>+ Add Detail</strong> to add up to 10 heading/description blocks.</p>
+              <p className='text-sm'>Click <strong className='text-blue-500'>+ Add Detail</strong> to add up to 10 heading/description blocks.</p>
             </div>
           )}
         </div>
