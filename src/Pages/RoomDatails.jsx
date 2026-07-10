@@ -4,8 +4,9 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import assets, { facilityIcons, roomCommonData } from '../assets/assets'
 import StarRatting from '../Components/StarRatting'
-import { apiRequest, toRoomCard, fetchAvailableRooms, createBooking, confirmPayment, createRazorpayOrder } from '../api'
+import { apiRequest, toRoomCard, fetchAvailableRooms, createBooking, confirmPayment, createRazorpayOrder, fetchHotelReviews } from '../api'
 import PaymentModal from '../Components/PaymentModal'
+import Testimonial from '../Components/Testimonial'
 
 // ─── Step indicator ───────────────────────────────────────────────────────
 const Step = ({ num, label, active, done }) => (
@@ -30,6 +31,8 @@ const RoomDetails = () => {
   const [hotel, setHotel] = useState(null)
   const [mainImage, setMainImage] = useState(null)
   const [pageError, setPageError] = useState('')
+  const [hotelReviews, setHotelReviews] = useState([])
+  const [averageRating, setAverageRating] = useState(0)
 
   // ── booking state ──────────────────────────────────────────────
   const [checkIn,  setCheckIn]  = useState(searchParams.get('checkIn') || '')
@@ -49,19 +52,34 @@ const RoomDetails = () => {
   const [payLoading,     setPayLoading]     = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
 
-  // ── load hotel ─────────────────────────────────────────────────
+  // ── load hotel & reviews ───────────────────────────────────────
   useEffect(() => {
     if (!/^\d+$/.test(String(id).trim())) {
       setPageError('Invalid hotel link. Please open from the Hotels page.')
       return
     }
+    
+    // Fetch hotel details
     apiRequest(`/hotels/${id}`)
       .then(res => {
         const h = toRoomCard(res.data)
         setHotel(h)
         setMainImage(h.images[0])
+        setAverageRating(h.rating || 0) // Default to hotel rating if no reviews
       })
       .catch(err => setPageError(err.message || 'Hotel not found'))
+      
+    // Fetch hotel reviews
+    fetchHotelReviews(id)
+      .then(res => {
+        const revs = res.data || []
+        setHotelReviews(revs)
+        if (revs.length > 0) {
+          const sum = revs.reduce((acc, curr) => acc + curr.rating, 0)
+          setAverageRating(sum / revs.length)
+        }
+      })
+      .catch(console.error)
   }, [id])
 
   // ── today string for min date attr ─────────────────────────────
@@ -202,8 +220,10 @@ const RoomDetails = () => {
 
       {/* ── Rating ── */}
       <div className="flex items-center gap-1 mt-2">
-        <StarRatting rating={hotel.rating} />
-        <p className="ml-2 text-sm text-gray-500">200+ reviews</p>
+        <StarRatting rating={averageRating} />
+        <p className="ml-2 text-sm text-gray-500">
+          {hotelReviews.length > 0 ? `${hotelReviews.length} reviews` : 'No reviews yet'}
+        </p>
       </div>
 
       {/* ── Address ── */}
@@ -516,6 +536,10 @@ const RoomDetails = () => {
           )
         } catch { return null }
       })()}
+
+      <div className="mt-16 mb-20">
+        <Testimonial hotelId={id} preloadedReviews={hotelReviews} />
+      </div>
 
       <PaymentModal 
         isOpen={showPaymentModal}

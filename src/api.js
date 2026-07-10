@@ -113,3 +113,8 @@ export function toRoomCard(hotel) {
 export async function fetchAllReviews() {
   return apiRequest('/reviews')
 }
+
+// ─── Fetch hotel specific reviews ─────────────────────────────────────────
+export async function fetchHotelReviews(hotelId) {
+  return apiRequest(`/reviews/hotel/${hotelId}`)
+}

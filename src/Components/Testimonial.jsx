@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import Title from './Title'
 import StarRatting from './StarRatting'
-import { fetchAllReviews } from '../api'
+import { fetchAllReviews, fetchHotelReviews } from '../api'
 import assets from '../assets/assets'
 
-const Testimonial = () => {
+const Testimonial = ({ hotelId, preloadedReviews }) => {
   const [reviews, setReviews] = useState([])
   const [showAll, setShowAll] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchAllReviews()
+    if (preloadedReviews) {
+      setReviews(preloadedReviews)
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    const fetchFn = hotelId ? fetchHotelReviews(hotelId) : fetchAllReviews()
+    fetchFn
       .then(res => {
         setReviews(res.data || [])
         setLoading(false)
@@ -19,7 +27,7 @@ const Testimonial = () => {
         console.error("Error fetching reviews:", err)
         setLoading(false)
       })
-  }, [])
+  }, [hotelId])
 
   if (loading) {
     return (
@@ -44,8 +52,8 @@ const Testimonial = () => {
   return (
     <div className='flex flex-col items-center px-6 md:px-16 lg:px-24 bg-slate-50 pt-20 pb-24'>
       <Title
-        title='What our Guests Say'
-        subTitle='Real experiences shared by our community of travelers.'
+        title={hotelId ? 'Ratings & Reviews' : 'What our Guests Say'}
+        subTitle={hotelId ? 'See what previous guests have to say about their stay at this hotel.' : 'Real experiences shared by our community of travelers.'}
       />
 
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-14 w-full max-w-7xl'>

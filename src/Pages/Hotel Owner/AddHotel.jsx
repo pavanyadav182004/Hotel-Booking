@@ -108,7 +108,7 @@ const AddHotel = () => {
           customDetails: JSON.stringify(customDetails),
         }),
       })
-      toast.success(editId ? '✅ Hotel updated successfully!' : '✅ Hotel added successfully!')
+      toast.success(editId ? 'Hotel updated successfully!' : ' Hotel added successfully!')
       setTimeout(() => navigate('/owner'), 1500)
     } catch (err) {
       toast.error(err.message || (editId ? 'Failed to update hotel.' : 'Failed to add hotel.'))
@@ -142,6 +142,18 @@ const AddHotel = () => {
     const updated = [...customDetails]
     updated[idx].description = newText
     setCustomDetails(updated)
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(start + prefix.length, start + prefix.length + selected.length) }, 0)
+  }
+
+  const insertFormatDesc = (prefix, suffix, placeholder) => {
+    const ta = document.getElementById('hotel-desc')
+    if (!ta) return
+    const start = ta.selectionStart
+    const end = ta.selectionEnd
+    const current = hotel.description || ''
+    const selected = current.substring(start, end) || placeholder
+    const newText = current.substring(0, start) + prefix + selected + suffix + current.substring(end)
+    setHotel({ ...hotel, description: newText })
     setTimeout(() => { ta.focus(); ta.setSelectionRange(start + prefix.length, start + prefix.length + selected.length) }, 0)
   }
 
@@ -186,9 +198,36 @@ const AddHotel = () => {
 
           <div className='sm:col-span-2 flex flex-col gap-1'>
             <label className='text-sm font-medium text-gray-700'>Description</label>
-            <textarea rows={3} className='border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400 resize-none'
+            
+            <div className='flex flex-wrap gap-2 mb-1'>
+              <button type='button' onClick={() => insertFormatDesc('**', '**', 'bold text')} className='w-8 h-8 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors' title='Bold'>B</button>
+              <button type='button' onClick={() => insertFormatDesc('*', '*', 'italic text')} className='w-8 h-8 border border-gray-300 rounded italic text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors' title='Italic'>I</button>
+              <button type='button' onClick={() => insertFormatDesc('\n### ', '', 'Heading 3')} className='h-8 px-2 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors' title='Heading 3'>H3</button>
+              <button type='button' onClick={() => insertFormatDesc('\n## ', '', 'Heading 2')} className='h-8 px-2 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors' title='Heading 2'>H2</button>
+              <button type='button' onClick={() => insertFormatDesc('\n- ', '', 'List item')} className='h-8 px-2 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors' title='Bullet List'>• List</button>
+              <button type='button' onClick={() => insertFormatDesc('\n---\n', '', '')} className='h-8 px-2 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors' title='Line Break / Divider'>--- Break</button>
+            </div>
+
+            <textarea id='hotel-desc' rows={4} className='border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400 resize-none font-mono'
               value={hotel.description} onChange={e => setHotel({ ...hotel, description: e.target.value })}
               placeholder='Brief description of the hotel...' />
+              
+            {hotel.description && (
+              <div className='mt-1 text-sm text-gray-700 border p-3 rounded-lg bg-gray-50'>
+                <span className='text-xs text-gray-400 mb-1 block font-medium'>Preview:</span>
+                <div dangerouslySetInnerHTML={{
+                  __html: hotel.description
+                    .replace(/^---$/gim, '<hr class="my-4 border-gray-300" />')
+                    .replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-2 mb-1">$1</h3>')
+                    .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-2 mb-1">$1</h2>')
+                    .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-2 mb-1">$1</h1>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
+                    .replace(/\n/g, '<br/>')
+                }} />
+              </div>
+            )}
           </div>
 
           <div className='flex flex-col gap-1'>
@@ -330,20 +369,29 @@ const AddHotel = () => {
                   I
                 </button>
                 <button type='button'
+                  onClick={() => insertFormat(idx, '\n### ', '', 'Heading 3')}
+                  className='h-8 px-2 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  title='Heading 3'>
+                  H3
+                </button>
+                <button type='button'
+                  onClick={() => insertFormat(idx, '\n- ', '', 'List item')}
+                  className='h-8 px-2 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  title='Bullet List'>
+                  • List
+                </button>
+                <button type='button'
+                  onClick={() => insertFormat(idx, '\n---\n', '', '')}
+                  className='h-8 px-2 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  title='Line Break / Divider'>
+                  --- Break
+                </button>
+                <button type='button'
                   onClick={() => insertFormat(idx, '**', ':** value', 'Label')}
                   className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-blue-50 hover:border-blue-400 transition-colors'
                   title='Bold + Colon'>
                   B:
                 </button>
-                <button type='button'
-                  onClick={() => insertFormat(idx, '**', ':** *value*', 'Label')}
-                  className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-blue-50 hover:border-blue-400 transition-colors'
-                  title='Bold + Colon + Italic value'>
-                  B:I
-                </button>
-                <span className='text-xs text-gray-400 self-center ml-1 hidden sm:block'>
-                  **bold** &nbsp;|&nbsp; *italic* &nbsp;|&nbsp; **Label:** value
-                </span>
               </div>
 
               {/* Description textarea */}
@@ -364,10 +412,15 @@ const AddHotel = () => {
               {policy.description && (
                 <div className='mt-2 text-sm text-gray-700 border-t pt-2'>
                   <span className='text-xs text-gray-400 mb-1 block font-medium'>Preview:</span>
-                  <p dangerouslySetInnerHTML={{
+                  <div dangerouslySetInnerHTML={{
                     __html: policy.description
+                      .replace(/^---$/gim, '<hr class="my-4 border-gray-300" />')
+                      .replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-2 mb-1">$1</h3>')
+                      .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-2 mb-1">$1</h2>')
+                      .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-2 mb-1">$1</h1>')
                       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                       .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                      .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
                       .replace(/\n/g, '<br/>')
                   }} />
                 </div>
@@ -438,20 +491,29 @@ const AddHotel = () => {
                   I
                 </button>
                 <button type='button'
+                  onClick={() => insertFormatDetails(idx, '\n### ', '', 'Heading 3')}
+                  className='h-8 px-2 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  title='Heading 3'>
+                  H3
+                </button>
+                <button type='button'
+                  onClick={() => insertFormatDetails(idx, '\n- ', '', 'List item')}
+                  className='h-8 px-2 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  title='Bullet List'>
+                  • List
+                </button>
+                <button type='button'
+                  onClick={() => insertFormatDetails(idx, '\n---\n', '', '')}
+                  className='h-8 px-2 border border-gray-300 rounded font-bold text-sm hover:bg-blue-50 hover:border-blue-400 transition-colors'
+                  title='Line Break / Divider'>
+                  --- Break
+                </button>
+                <button type='button'
                   onClick={() => insertFormatDetails(idx, '**', ':** value', 'Label')}
                   className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-blue-50 hover:border-blue-400 transition-colors'
                   title='Bold + Colon'>
                   B:
                 </button>
-                <button type='button'
-                  onClick={() => insertFormatDetails(idx, '**', ':** *value*', 'Label')}
-                  className='h-8 px-2 border border-gray-300 rounded text-xs font-mono hover:bg-blue-50 hover:border-blue-400 transition-colors'
-                  title='Bold + Colon + Italic value'>
-                  B:I
-                </button>
-                <span className='text-xs text-gray-400 self-center ml-1 hidden sm:block'>
-                  **bold** &nbsp;|&nbsp; *italic* &nbsp;|&nbsp; **Label:** value
-                </span>
               </div>
 
               {/* Description textarea */}
@@ -472,10 +534,15 @@ const AddHotel = () => {
               {detail.description && (
                 <div className='mt-2 text-sm text-gray-700 border-t pt-2'>
                   <span className='text-xs text-gray-400 mb-1 block font-medium'>Preview:</span>
-                  <p dangerouslySetInnerHTML={{
+                  <div dangerouslySetInnerHTML={{
                     __html: detail.description
+                      .replace(/^---$/gim, '<hr class="my-4 border-gray-300" />')
+                      .replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-2 mb-1">$1</h3>')
+                      .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-2 mb-1">$1</h2>')
+                      .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-2 mb-1">$1</h1>')
                       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                       .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                      .replace(/^- (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
                       .replace(/\n/g, '<br/>')
                   }} />
                 </div>
