@@ -95,9 +95,14 @@ const Testimonial = ({ hotelId, preloadedReviews }) => {
               <StarRatting rating={review.rating} readOnly />
             </div>
 
-            <p className='text-gray-600 mt-3 leading-relaxed italic flex-grow text-[14px] line-clamp-4'>
-              "{review.comment}"
-            </p>
+            <p className='text-gray-600 mt-3 leading-relaxed italic flex-grow text-[14px] line-clamp-4'
+              dangerouslySetInnerHTML={{
+                __html: `"${(review.comment || '')
+                  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                  .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                  .replace(/\n/g, '<br/>')}"`
+              }} 
+            />
 
             <div className='mt-5 pt-4 border-t border-gray-50 flex justify-between items-center'>
               <div className='flex flex-col'>

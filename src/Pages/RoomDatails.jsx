@@ -254,7 +254,12 @@ const RoomDetails = () => {
         <div className="flex flex-col">
           <h2 className="text-3xl md:text-4xl font-playfair">{hotel.heading || 'Experience Luxury Like Never Before'}</h2>
           {hotel.description && (
-            <p className="text-gray-600 mt-3 leading-relaxed text-base max-w-3xl">{hotel.description}</p>
+            <p className="text-gray-600 mt-3 leading-relaxed text-base max-w-3xl" dangerouslySetInnerHTML={{
+              __html: (hotel.description || '')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br/>')
+            }} />
           )}
           <div className="flex flex-wrap items-center mt-3 mb-6 gap-4">
             {hotel.amenities.map((item, i) => (
