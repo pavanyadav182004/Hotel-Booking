@@ -3,80 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import Title from '../../Components/Title'
 import { apiRequest, toRoomCard } from '../../api'
 
-const emptyEdit = {
-  hotelId: '',
-  hotel: { name: '', city: '', address: '' },
-  heading: '',
-  description: '',
-  roomType: '',
-  pricePerNight: 0,
-  rating: 4.5,
-  images: ['', '', '', '', ''],
-  amenities: [],
-  isAvailable: true,
-}
 
 const Dashboard = () => {
   const navigate = useNavigate()
   const [bookings, setBookings] = useState([])
   const [hotels, setHotels] = useState([])
   const [messages, setMessages] = useState([])
-  const [editing, setEditing] = useState(null)
-  const [adding, setAdding] = useState(false)
-  const [newHotel, setNewHotel] = useState({
-    name: '',
-    city: '',
-    address: '',
-    heading: '',
-    description: '',
-    pricePerNight: 0,
-    rating: 4.5,
-    images: ['', '', '', '', ''],
-    roomType: 'DELUXE',
-    available: true,
-    amenities: ['Free Wi-Fi', 'Room Service', 'Free Breakfast'],
-  })
+
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [editingRoom, setEditingRoom] = useState(null)
 
-  const handleImageUpload = (e, index, isEditing) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      alert("Please select a valid image file");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const image = new Image();
-      image.onload = () => {
-        const canvas = document.createElement("canvas");
-        const maxWidth = 800;
-        const scale = Math.min(1, maxWidth / image.width);
-        canvas.width = image.width * scale;
-        canvas.height = image.height * scale;
-
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-        const compressedImage = canvas.toDataURL("image/jpeg", 0.8);
-
-        if (isEditing) {
-          const newImgs = [...editing.images];
-          newImgs[index] = compressedImage;
-          setEditing({ ...editing, images: newImgs });
-        } else {
-          const newImgs = [...newHotel.images];
-          newImgs[index] = compressedImage;
-          setNewHotel({ ...newHotel, images: newImgs });
-        }
-      };
-      image.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  };
 
   const loadDashboard = async () => {
     setLoading(true)
@@ -118,64 +56,7 @@ const Dashboard = () => {
     navigate('/owner/add-hotel', { state: { hotel } })
   }
 
-  const createHotel = async (e) => {
-    e.preventDefault()
-    try {
-      await apiRequest('/hotels', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...newHotel,
-          pricePerNight: Number(newHotel.pricePerNight),
-          rating: Number(newHotel.rating),
-          images: newHotel.images.filter(img => img.trim() !== ''),
-        }),
-      })
-      setAdding(false)
-      setNewHotel({
-        name: '',
-        city: '',
-        address: '',
-        heading: '',
-        description: '',
-        pricePerNight: 0,
-        rating: 4.5,
-        images: ['', '', '', '', ''],
-        roomType: 'DELUXE',
-        available: true,
-        amenities: ['Free Wi-Fi', 'Room Service', 'Free Breakfast'],
-      })
-      loadDashboard()
-    } catch (err) {
-      alert(err.message || 'Unable to add hotel')
-    }
-  }
 
-  const saveHotel = async (e) => {
-    e.preventDefault()
-    if (!editing) return
-    try {
-      await apiRequest(`/hotels/${editing.hotelId}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          name: editing.hotel.name,
-          city: editing.hotel.city,
-          address: editing.hotel.address,
-          heading: editing.heading,
-          description: editing.description,
-          pricePerNight: Number(editing.pricePerNight),
-          rating: Number(editing.rating),
-          images: editing.images.filter(img => img.trim() !== ''),
-          roomType: editing.roomType,
-          amenities: editing.amenities,
-          available: editing.isAvailable,
-        }),
-      })
-      setEditing(null)
-      loadDashboard()
-    } catch (err) {
-      alert(err.message || 'Unable to update hotel')
-    }
-  }
 
   const deleteHotel = async (id) => {
     if (!confirm('Delete this hotel? Existing bookings may prevent deletion.')) return
@@ -203,6 +84,8 @@ const Dashboard = () => {
           roomType: hotel.roomType,
           amenities: hotel.amenities,
           available: !hotel.isAvailable,
+          policies: hotel.policies,
+          customDetails: hotel.customDetails,
         }),
       })
       loadDashboard()

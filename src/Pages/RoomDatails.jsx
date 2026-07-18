@@ -52,6 +52,9 @@ const RoomDetails = () => {
   const [payLoading,     setPayLoading]     = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
 
+  // ── image gallery modal ────────────────────────────────────────
+  const [showGallery, setShowGallery] = useState(false)
+
   // ── load hotel & reviews ───────────────────────────────────────
   useEffect(() => {
     if (!/^\d+$/.test(String(id).trim())) {
@@ -235,19 +238,39 @@ const RoomDetails = () => {
       {/* ── Image gallery ── */}
       <div className="flex flex-col lg:flex-row mt-6 gap-6">
         <div className="lg:w-1/2 w-full">
-          <img className="w-full rounded-xl shadow-lg object-cover max-h-96"
+          <img className="w-full rounded-xl shadow-lg object-cover max-h-[400px] h-full"
             src={mainImage} alt="hotel" />
         </div>
         <div className="grid grid-cols-2 gap-4 lg:w-1/2 w-full">
-          {hotel.images.map((img, i) => (
-            <img key={i}
-              className={`w-full rounded-xl shadow-md object-cover cursor-pointer max-h-44
+          {hotel.images.slice(0, 4).map((img, i) => (
+            <div key={i} className="relative cursor-pointer h-full max-h-48" onClick={() => {
+              if (i === 3 && hotel.images.length > 4) setShowGallery(true)
+              else setMainImage(img)
+            }}>
+              <img className={`w-full h-full rounded-xl shadow-md object-cover
                 ${mainImage === img ? 'outline outline-2 outline-orange-500' : ''}`}
-              onClick={() => setMainImage(img)}
-              src={img} alt="hotel view" />
+                src={img} alt="hotel view" />
+              {i === 3 && hotel.images.length > 4 && (
+                <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center text-white text-xl font-semibold transition-opacity hover:bg-black/70">
+                  +{hotel.images.length - 4} Photos
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>
+
+      {/* ── Gallery Modal ── */}
+      {showGallery && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4">
+          <button className="absolute top-6 right-8 text-white text-4xl hover:text-gray-300" onClick={() => setShowGallery(false)}>✕</button>
+          <div className="w-full max-w-6xl h-[85vh] overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
+            {hotel.images.map((img, i) => (
+              <img key={i} src={img} alt={`gallery-${i}`} className="w-full h-64 object-cover rounded-lg shadow-lg hover:scale-[1.02] transition-transform duration-300 cursor-pointer" onClick={() => setMainImage(img)} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Amenities + price ── */}
       <div className="flex flex-col md:flex-row md:justify-between mt-10">

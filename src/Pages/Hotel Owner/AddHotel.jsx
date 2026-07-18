@@ -39,7 +39,7 @@ const AddHotel = () => {
         description: h.description || '',
         pricePerNight: h.pricePerNight || 0,
         rating: h.rating || 4.5,
-        images: h.images?.length ? [...h.images, '', '', '', '', ''].slice(0, 5) : ['', '', '', '', ''],
+        images: h.images?.length ? [...h.images] : ['', '', '', '', ''],
         roomType: h.roomType || 'DELUXE',
         available: h.isAvailable !== undefined ? h.isAvailable : true,
         amenities: h.amenities || [],
@@ -264,11 +264,18 @@ const AddHotel = () => {
 
           {/* Images */}
           <div className='sm:col-span-2 border-t pt-4 mt-2'>
-            <p className='text-sm font-medium text-gray-700 mb-3'>Hotel Images (Main + 4 Room Photos)</p>
-            <div className='grid sm:grid-cols-2 gap-4'>
+            <p className='text-sm font-medium text-gray-700 mb-3'>Hotel Images</p>
+            <div className='grid sm:grid-cols-2 lg:grid-cols-3 gap-4'>
               {hotel.images.map((img, idx) => (
-                <div key={idx} className='flex flex-col gap-1 border border-gray-200 p-2 rounded-lg bg-gray-50'>
-                  <span className='text-xs font-semibold text-gray-500'>{idx === 0 ? 'Main Image' : `Room Photo ${idx}`}</span>
+                <div key={idx} className='flex flex-col gap-1 border border-gray-200 p-2 rounded-lg bg-gray-50 relative'>
+                  {idx > 0 && (
+                    <button type="button" onClick={() => {
+                      const imgs = [...hotel.images];
+                      imgs.splice(idx, 1);
+                      setHotel({ ...hotel, images: imgs });
+                    }} className="absolute top-1 right-1 text-red-500 hover:bg-red-50 rounded-full w-6 h-6 flex items-center justify-center font-bold">✕</button>
+                  )}
+                  <span className='text-xs font-semibold text-gray-500'>{idx === 0 ? 'Main Image' : `Photo ${idx}`}</span>
                   <input className='border border-gray-300 rounded p-1.5 text-xs w-full'
                     value={img.startsWith('data:image') ? 'Uploaded File' : img}
                     onChange={e => {
@@ -286,6 +293,7 @@ const AddHotel = () => {
                 </div>
               ))}
             </div>
+            <button type="button" onClick={() => setHotel({ ...hotel, images: [...hotel.images, ''] })} className="mt-4 px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded border border-blue-200 hover:bg-blue-100">+ Add More Images</button>
           </div>
 
           {/* Amenities */}
