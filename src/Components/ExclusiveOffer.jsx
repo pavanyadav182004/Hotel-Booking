@@ -1,8 +1,10 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import Title from './Title'
 import assets, { exclusiveOffers } from '../assets/assets'
 
 const ExclusiveOffer = () => {
+  const navigate = useNavigate();
   return (
     <div className='px-6 md:px-16 lg:px-24 xl:px-32 pt-20 pb-20'>
 
@@ -10,9 +12,9 @@ const ExclusiveOffer = () => {
       <div className='flex flex-col md:flex-row items-center justify-between w-full'>
         <Title align='left'
           title='Exclusive offers'
-          subTitle='Take advantage of our limited-time offers and special packages to echance your stay and create unforgettable memories.' />
+          subTitle='Take advantage of our limited-time offers and special packages to enhance your stay and create unforgettable memories.' />
 
-        <button className='group flex items-center gap-2 font-medium cursor-pointer max-md:mt-12'>
+        <button onClick={() => navigate('/hotels')} className='group flex items-center gap-2 font-medium cursor-pointer max-md:mt-12'>
           View All Offers
           <img src={assets.arrowIcon} alt="arrowIcon"
             className='group-hover:translate-x-1 transition-all' />
@@ -37,7 +39,7 @@ const ExclusiveOffer = () => {
               <p className='text-xs text-white/70 mt-3'>{item.expiryDate}</p>
 
             </div>
-            <button className='flex items-center gap-2 font-mediun cursor-pointer mt-3 mb-5'>
+            <button onClick={() => navigate('/hotels')} className='flex items-center gap-2 font-medium cursor-pointer mt-3 mb-5'>
               View offers
               <img src={assets.arrowIcon} alt="arrowIcon"
                 className='invert group-hover:translate-x-1 transition-all'

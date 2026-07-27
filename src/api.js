@@ -1,6 +1,7 @@
 // ─── Base URL ─────────────────────────────────────────────────────────────
 // Reads from .env (VITE_API_URL) or falls back to the live Render backend
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://hotel-booking-backend-java.onrender.com/api'
+import roomImg1 from './assets/roomImg1.png'
 
 
 
@@ -75,7 +76,7 @@ export async function createRazorpayOrder(bookingId) {
 
 // ─── Map a hotel API response → room card shape used across the UI ─────────
 export function toRoomCard(hotel) {
-  const defaultImg = '/src/assets/roomImg1.png'
+  const defaultImg = roomImg1
   let images = hotel.images || []
   
   // Ensure we have at least 4 images for the UI layout
