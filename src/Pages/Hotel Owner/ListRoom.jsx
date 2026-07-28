@@ -31,10 +31,13 @@ const ListRoom = () => {
           description: room.description,
           pricePerNight: room.pricePerNight,
           rating: room.rating,
-          imageUrl: room.images[0],
+          images: room.images,
           roomType: room.roomType,
           amenities: room.amenities,
           available: !room.isAvailable,
+          heading: room.heading,
+          policies: room.policies,
+          customDetails: room.customDetails,
         })
       })
       loadRooms()
@@ -65,10 +68,13 @@ const ListRoom = () => {
           description: editing.description,
           pricePerNight: Number(editing.pricePerNight),
           rating: Number(editing.rating),
-          imageUrl: editing.images[0],
+          images: editing.images,
           roomType: editing.roomType,
           amenities: editing.amenities,
           available: editing.isAvailable,
+          heading: editing.heading,
+          policies: editing.policies,
+          customDetails: editing.customDetails,
         })
       })
       setEditing(null)
@@ -97,7 +103,11 @@ const ListRoom = () => {
           <input className='border border-gray-300 rounded p-2' type='number' value={editing.pricePerNight}
             onChange={e => setEditing({ ...editing, pricePerNight: e.target.value })} />
           <input className='border border-gray-300 rounded p-2 sm:col-span-2' value={editing.images[0]}
-            onChange={e => setEditing({ ...editing, images: [e.target.value] })} />
+            onChange={e => {
+              const newImages = [...editing.images];
+              newImages[0] = e.target.value;
+              setEditing({ ...editing, images: newImages });
+            }} />
           <div className='sm:col-span-2 flex gap-3'>
             <button className='bg-primary text-white px-5 py-2 rounded'>Update</button>
             <button type='button' onClick={() => setEditing(null)} className='bg-gray-500 text-white px-5 py-2 rounded'>Cancel</button>
