@@ -1,6 +1,7 @@
-// ─── Base URL ─────────────────────────────────────────────────────────────
 // Reads from .env (VITE_API_URL) or falls back to the live Render backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://hotel-booking-backend-java.onrender.com/api'
+const API_BASE_URL = import.meta.env.DEV 
+  ? 'http://localhost:8080/api' 
+  : (import.meta.env.VITE_API_URL || 'https://hotel-booking-backend-java.onrender.com/api')
 import roomImg1 from './assets/roomImg1.png'
 
 
@@ -118,4 +119,29 @@ export async function fetchAllReviews() {
 // ─── Fetch hotel specific reviews ─────────────────────────────────────────
 export async function fetchHotelReviews(hotelId) {
   return apiRequest(`/reviews/hotel/${hotelId}`)
+}
+
+// ─── Manage Exclusive Offers ─────────────────────────────────────────────
+export async function fetchOffers() {
+  return apiRequest('/offers')
+}
+
+export async function createOffer(payload) {
+  return apiRequest('/offers', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function updateOffer(id, payload) {
+  return apiRequest(`/offers/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function deleteOffer(id) {
+  return apiRequest(`/offers/${id}`, {
+    method: 'DELETE',
+  })
 }

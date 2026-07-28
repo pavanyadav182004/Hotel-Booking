@@ -18,6 +18,7 @@ import Dashboard from './Pages/Hotel Owner/Dashboard'
 import AddHotel from './Pages/Hotel Owner/AddHotel'
 import Addroom from './Pages/Hotel Owner/Addroom'
 import ListRoom from './Pages/Hotel Owner/ListRoom'
+import ManageOffers from './Pages/Hotel Owner/ManageOffers'
 
 import Login from './Pages/Login'
 import Register from './Pages/Register'
@@ -83,6 +84,7 @@ function App() {
             <Route path="add-hotel" element={<AddHotel />} />
             <Route path="add-room" element={<Addroom />} />
             <Route path="list-room" element={<ListRoom />} />
+            <Route path="manage-offers" element={<ManageOffers />} />
           </Route>
 
           {/* FALLBACK */}

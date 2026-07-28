@@ -8,6 +8,7 @@ const Sidebar = () => {
         { name: 'Add Hotel', path: '/owner/add-hotel', icon: assets.addIcon },
         { name: 'Add Room', path: '/owner/add-room', icon: assets.addIcon },
         { name: 'List Room', path: '/owner/list-room', icon: assets.listIcon },
+        { name: 'Manage Offers', path: '/owner/manage-offers', icon: assets.listIcon },
     ]
     return (
         <div className='md:w-64 w-16 border-r h-full text-base 
