@@ -18,7 +18,9 @@ export function saveLogin(data) {
 
 export function getUser() {
   try {
-    return JSON.parse(localStorage.getItem('user'))
+    const raw = localStorage.getItem('user')
+    if (!raw || raw === 'undefined' || raw === 'null') return null
+    return JSON.parse(raw)
   } catch {
     return null
   }
